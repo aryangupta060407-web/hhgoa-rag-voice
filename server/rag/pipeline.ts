@@ -20,6 +20,10 @@ const UNSAFE_PATTERNS = [
   /\b(?:kill|harm)\s+(?:myself|yourself|someone)\b/i,
   /\b(?:suicide|self[- ]harm)\b/i,
 ];
+const AMBIGUOUS_FOLLOW_UP_PATTERNS = [
+  /\b(?:can you )?(?:explain|describe|clarify)\s+(?:that|this|it|one)\b/i,
+  /\b(?:tell me about|what about)\s+(?:that|this|it|one)\b/i,
+];
 const STOP_WORDS = new Set(["a", "an", "and", "are", "at", "be", "by", "does", "for", "from", "has", "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with"]);
 
 type CacheEntry = { query: string; vector: Float64Array; outcome: RagOutcome };
@@ -35,6 +39,10 @@ function elapsed(start: number) {
 
 export function normalizeQuery(input: string) {
   return input.normalize("NFKC").replace(/\s+/g, " ").trim();
+}
+
+export function isUnsafeQuery(query: string) {
+  return UNSAFE_PATTERNS.some(pattern => pattern.test(query));
 }
 
 export function tokenize(input: string) {
@@ -187,13 +195,15 @@ function extractSentence(candidate: RankedCandidate, queryTokens: string[]) {
 }
 
 function guardrailFor(query: string, queryTokens: string[], top: RankedCandidate | undefined): GuardrailDecision {
-  const unsafe = UNSAFE_PATTERNS.some(pattern => pattern.test(query));
+  const unsafe = isUnsafeQuery(query);
+  const ambiguousFollowUp = AMBIGUOUS_FOLLOW_UP_PATTERNS.some(pattern => pattern.test(query));
   const vocabularyMatches = queryTokens.filter(token => CORPUS_VOCABULARY.has(token)).length;
   const domainAffinity = queryTokens.length ? vocabularyMatches / queryTokens.length : 0;
   const coverage = top ? lexicalScore(queryTokens, top.chunk.tokenSet) : 0;
   const groundingConfidence = top ? Number((Math.max(0, top.dense) * 0.45 + coverage * 0.55).toFixed(3)) : 0;
   const reasons: GuardrailDecision["reasons"] = [];
   if (unsafe) reasons.push("unsafe_input");
+  if (!unsafe && ambiguousFollowUp) reasons.push("insufficient_grounding");
   if (!unsafe && (domainAffinity < 0.12 || coverage < 0.12)) reasons.push("off_topic");
   if (!unsafe && reasons.length === 0 && groundingConfidence < 0.16) reasons.push("insufficient_grounding");
   return { status: reasons.length ? "refused" : "passed", reasons, domainAffinity: Number(domainAffinity.toFixed(3)), groundingConfidence };

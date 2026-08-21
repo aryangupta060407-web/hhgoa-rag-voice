@@ -5,6 +5,8 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { benchmarkQueries, clearSemanticCache, runDeterministicRag, summarizeLatency } from "./rag/pipeline";
+import { getRetrievalGatewayConfig } from "./rag/retrievalGateway";
+import { runRagQuery } from "./rag/service";
 import { transcribeWithFallback } from "./rag/transcription";
 import type { RagOutcome } from "./rag/types";
 
@@ -34,6 +36,16 @@ async function persistOutcome(outcome: RagOutcome, transcriptionProvider?: strin
   return outcome;
 }
 
+function queueOutcomePersistence(outcome: RagOutcome, transcriptionProvider?: string, transcriptionMs?: number) {
+  // The user-facing answer has already been grounded and is ready. Query-history
+  // telemetry is best-effort so remote database latency cannot consume the RAG
+  // response budget. Controlled benchmarks keep the awaited path below.
+  const snapshot = structuredClone(outcome);
+  void persistOutcome(snapshot, transcriptionProvider, transcriptionMs).catch(error => {
+    console.error("[RAG] Background query history persistence failed", error);
+  });
+}
+
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
@@ -50,7 +62,11 @@ export const appRouter = router({
   rag: router({
     query: publicProcedure
       .input(z.object({ query: z.string().trim().min(2).max(600) }))
-      .mutation(async ({ input }) => persistOutcome(runDeterministicRag(input.query))),
+      .mutation(async ({ input }) => {
+        const outcome = await runRagQuery(input.query);
+        queueOutcomePersistence(outcome);
+        return outcome;
+      }),
     voiceQuery: publicProcedure
       .input(z.object({
         audioBase64: z.string().min(16).max(11_200_000),
@@ -60,13 +76,14 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const transcription = await transcribeWithFallback(input);
-        const outcome = runDeterministicRag(transcription.transcript);
+        const outcome = await runRagQuery(transcription.transcript);
         outcome.transcript = transcription.transcript;
         outcome.latency.transcriptionMs = transcription.latencyMs;
         outcome.latency.totalMs = Number((outcome.latency.retrievalToAnswerMs + transcription.latencyMs).toFixed(3));
+        queueOutcomePersistence(outcome, transcription.provider, transcription.latencyMs);
         return {
           transcription,
-          result: await persistOutcome(outcome, transcription.provider, transcription.latencyMs),
+          result: outcome,
         };
       }),
     history: publicProcedure.query(async () => {
@@ -86,6 +103,14 @@ export const appRouter = router({
         population: benchmarkRecords.length >= 10 ? "cold_benchmark" : "live_history",
         report: summarizeLatency(selected.map(record => record.latencyPayload as any)),
       };
+    }),
+    corpusStatus: publicProcedure.query(() => {
+      const config = getRetrievalGatewayConfig();
+      return {
+        mode: config ? "external_gateway" : "compact_local",
+        configured: Boolean(config),
+        targetLatencyMs: 200,
+      } as const;
     }),
     benchmark: publicProcedure.mutation(async () => {
       const outcomes: RagOutcome[] = [];

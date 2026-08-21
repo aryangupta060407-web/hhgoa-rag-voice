@@ -32,6 +32,15 @@ describe("deterministic extractive RAG pipeline", () => {
     expect(result.answerMode).toBe("refusal");
   });
 
+  it("refuses an ambiguous follow-up when the corpus provides no referent", () => {
+    clearSemanticCache();
+    const result = runDeterministicRag("Can you explain that one?");
+
+    expect(result.guardrails.status).toBe("refused");
+    expect(result.answerMode).toBe("refusal");
+    expect(result.sources).toEqual([]);
+  });
+
   it("uses the semantic cache only for an identical normalized query", () => {
     clearSemanticCache();
     runDeterministicRag("What is a corporation?");

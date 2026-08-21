@@ -54,6 +54,8 @@ export type RetrievedSource = {
   relevance: number;
   content: string;
   evidenceSentence: string;
+  dataset?: string;
+  split?: string;
 };
 
 export type RagOutcome = {
@@ -65,6 +67,8 @@ export type RagOutcome = {
   guardrails: GuardrailDecision;
   latency: StageLatency;
   cacheHit: boolean;
+  corpusMode?: "compact_local" | "external_gateway";
+  indexVersion?: string;
 };
 
 export type TranscriptionOutcome = {
