@@ -5,7 +5,6 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { benchmarkQueries, clearSemanticCache, runDeterministicRag, summarizeLatency } from "./rag/pipeline";
-import { runRagQuery } from "./rag/service";
 import { transcribeWithFallback } from "./rag/transcription";
 import type { RagOutcome } from "./rag/types";
 
@@ -51,7 +50,7 @@ export const appRouter = router({
   rag: router({
     query: publicProcedure
       .input(z.object({ query: z.string().trim().min(2).max(600) }))
-      .mutation(async ({ input }) => persistOutcome(await runRagQuery(input.query))),
+      .mutation(async ({ input }) => persistOutcome(runDeterministicRag(input.query))),
     voiceQuery: publicProcedure
       .input(z.object({
         audioBase64: z.string().min(16).max(11_200_000),
@@ -61,7 +60,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const transcription = await transcribeWithFallback(input);
-        const outcome = await runRagQuery(transcription.transcript);
+        const outcome = runDeterministicRag(transcription.transcript);
         outcome.transcript = transcription.transcript;
         outcome.latency.transcriptionMs = transcription.latencyMs;
         outcome.latency.totalMs = Number((outcome.latency.retrievalToAnswerMs + transcription.latencyMs).toFixed(3));

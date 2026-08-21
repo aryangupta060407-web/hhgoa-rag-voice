@@ -33,7 +33,6 @@ export type StageLatency = {
   lexicalRetrievalMs: number;
   fusionMs: number;
   extractionMs: number;
-  generalAnswerMs?: number;
   persistenceMs: number;
   retrievalToAnswerMs: number;
   transcriptionMs?: number;
@@ -41,7 +40,7 @@ export type StageLatency = {
 };
 
 export type GuardrailDecision = {
-  status: "passed" | "fallback" | "refused";
+  status: "passed" | "refused";
   reasons: Array<"unsafe_input" | "off_topic" | "insufficient_grounding">;
   domainAffinity: number;
   groundingConfidence: number;
@@ -61,7 +60,7 @@ export type RagOutcome = {
   transcript: string;
   normalizedQuery: string;
   answer: string | null;
-  answerMode: "extractive" | "general_fallback" | "refusal" | "semantic_cache";
+  answerMode: "extractive" | "refusal" | "semantic_cache";
   sources: RetrievedSource[];
   guardrails: GuardrailDecision;
   latency: StageLatency;
