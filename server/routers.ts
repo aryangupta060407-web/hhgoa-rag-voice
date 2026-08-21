@@ -5,7 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { benchmarkQueries, clearSemanticCache, runDeterministicRag, summarizeLatency } from "./rag/pipeline";
-import { getRetrievalGatewayConfig } from "./rag/retrievalGateway";
+import { getGatewayIndexStatus, getRetrievalGatewayConfig } from "./rag/retrievalGateway";
 import { runRagQuery } from "./rag/service";
 import { transcribeWithFallback } from "./rag/transcription";
 import type { RagOutcome } from "./rag/types";
@@ -104,13 +104,42 @@ export const appRouter = router({
         report: summarizeLatency(selected.map(record => record.latencyPayload as any)),
       };
     }),
-    corpusStatus: publicProcedure.query(() => {
+    corpusStatus: publicProcedure.query(async () => {
       const config = getRetrievalGatewayConfig();
+      if (config) {
+        try {
+          const index = await getGatewayIndexStatus(config);
+          return {
+            mode: "external_gateway" as const,
+            configured: true,
+            reachable: true,
+            targetLatencyMs: 200,
+            ...index,
+          };
+        } catch (error) {
+          console.warn("[RAG] External corpus status unavailable", error);
+          return {
+            mode: "external_gateway" as const,
+            configured: true,
+            reachable: false,
+            targetLatencyMs: 200,
+            indexVersion: "unavailable",
+            pointsCount: 0,
+            vectorsCount: 0,
+            status: "unreachable",
+          };
+        }
+      }
       return {
-        mode: config ? "external_gateway" : "compact_local",
-        configured: Boolean(config),
+        mode: "compact_local" as const,
+        configured: false,
+        reachable: true,
         targetLatencyMs: 200,
-      } as const;
+        indexVersion: "compact-validation-slice",
+        pointsCount: 7,
+        vectorsCount: 7,
+        status: "ready",
+      };
     }),
     benchmark: publicProcedure.mutation(async () => {
       const outcomes: RagOutcome[] = [];

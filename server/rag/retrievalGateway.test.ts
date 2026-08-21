@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { retrieveFromGateway } from "./retrievalGateway";
+import { getGatewayIndexStatus, retrieveFromGateway } from "./retrievalGateway";
 
 const gatewayResponse = {
   indexVersion: "msmarco-xi-hi-v1",
@@ -47,5 +47,18 @@ describe("retrieval gateway contract", () => {
       fetchImpl,
     )).rejects.toThrow("not a valid retrieval payload");
   });
-});
 
+  it("reads validated index status using the paired server-only status endpoint", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ indexVersion: "msmarco_xi_hi_1k_v1", pointsCount: 1034, vectorsCount: 0, status: "green" }), { status: 200 }));
+    const result = await getGatewayIndexStatus(
+      { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      fetchImpl,
+    );
+
+    expect(result).toEqual({ indexVersion: "msmarco_xi_hi_1k_v1", pointsCount: 1034, vectorsCount: 0, status: "green" });
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "https://retrieval.example.test/v1/index-status",
+      expect.objectContaining({ headers: { authorization: "Bearer server-only-token" } }),
+    );
+  });
+});

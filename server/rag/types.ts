@@ -83,6 +83,8 @@ export type LatencyPercentiles = {
   sampleSize: number;
   p50: number;
   p70: number;
+  p95: number;
+  p99: number;
   p100: number;
 };
 

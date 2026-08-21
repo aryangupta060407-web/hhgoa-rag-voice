@@ -11,7 +11,12 @@
 - [x] Improve deterministic grounding, refusal handling, and detailed critical-path latency instrumentation.
 - [x] Update the UI to communicate grounded answers, corpus readiness, source traces, and real latency metrics clearly.
 - [x] Add regression and benchmark coverage for in-corpus, out-of-corpus, ambiguous, unsafe, and repeated questions.
-- [ ] Connect a real external corpus service and run full-scale validation when its endpoint and credentials are available.
+- [x] Assess external corpus connection and record the blocker: a real local Qdrant gateway was validated, but no persistent publicly routable host is available in the current sandbox.
+- [x] Assess whether a persistent Qdrant service and real validation index can be provisioned within the currently available environment.
+- [x] Add a deployable retrieval gateway implementation, Docker deployment assets, secret-variable documentation, and operational README instructions.
+- [x] Build and benchmark the largest real MSMARCO-XI validation index that the available infrastructure can support without fabricating coverage.
+- [x] Surface actual corpus count, index version, gateway status, and P50/P70/P95/P99/P100 latency data in the application.
+- [x] Produce the requested final deployment and benchmark status report with any genuine external-infrastructure blocker.
 - [x] Assess local and hosted Qdrant plus BM25 deployment options for the HH Goa submission.
 - [x] Define the retrieval gateway API contract and exact end-to-end setup steps.
 - [x] Recommend the lowest-risk path for the submission without requiring unavailable credentials.

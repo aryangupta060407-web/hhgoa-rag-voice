@@ -57,6 +57,6 @@ describe("deterministic extractive RAG pipeline", () => {
       { guardrailsMs: 1, cacheMs: 0, embeddingMs: 5, denseRetrievalMs: 5, lexicalRetrievalMs: 1, fusionMs: 1, extractionMs: 3, persistenceMs: 0, retrievalToAnswerMs: 21, totalMs: 21 },
     ]);
 
-    expect(analytics.retrievalToAnswer).toEqual({ sampleSize: 3, p50: 15, p70: 21, p100: 21 });
+    expect(analytics.retrievalToAnswer).toEqual({ sampleSize: 3, p50: 15, p70: 21, p95: 21, p99: 21, p100: 21 });
   });
 });

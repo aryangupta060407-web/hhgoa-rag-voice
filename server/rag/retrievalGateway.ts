@@ -43,6 +43,13 @@ export type RetrievalGatewayConfig = {
   timeoutMs?: number;
 };
 
+export type RetrievalGatewayIndexStatus = {
+  indexVersion: string;
+  pointsCount: number;
+  vectorsCount: number;
+  status: string;
+};
+
 const DEFAULT_TIMEOUT_MS = 120;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -146,6 +153,33 @@ export async function retrieveFromGateway(
       throw new Error(`Retrieval gateway exceeded ${config.timeoutMs ?? DEFAULT_TIMEOUT_MS} ms`);
     }
     throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function getGatewayIndexStatus(
+  config: RetrievalGatewayConfig,
+  fetchImpl: typeof fetch = fetch,
+): Promise<RetrievalGatewayIndexStatus> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+  const statusUrl = config.url.replace(/\/v1\/retrieve\/?$/, "/v1/index-status");
+
+  try {
+    const response = await fetchImpl(statusUrl, {
+      headers: { authorization: `Bearer ${config.token}` },
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Retrieval gateway status returned ${response.status}`);
+    const body: unknown = await response.json();
+    if (!isRecord(body)) throw new Error("Retrieval gateway index status is malformed");
+    return {
+      indexVersion: asText(body.indexVersion, "indexVersion"),
+      pointsCount: asNumber(body.pointsCount, "pointsCount"),
+      vectorsCount: asNumber(body.vectorsCount, "vectorsCount"),
+      status: asText(body.status, "status"),
+    };
   } finally {
     clearTimeout(timeout);
   }

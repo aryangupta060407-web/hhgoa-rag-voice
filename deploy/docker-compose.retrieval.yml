@@ -1,0 +1,25 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.0
+    restart: unless-stopped
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    expose:
+      - "6333"
+      - "6334"
+  retrieval-gateway:
+    build:
+      context: ../services/retrieval-gateway
+    restart: unless-stopped
+    depends_on:
+      - qdrant
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-msmarco_xi_hi_v1}
+      GATEWAY_TOKEN: ${GATEWAY_TOKEN:?Set_a_long_random_gateway_token}
+      DENSE_MODEL: ${DENSE_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      SPARSE_MODEL: ${SPARSE_MODEL:-Qdrant/bm25}
+    ports:
+      - "8080:8080"
+volumes:
+  qdrant_storage:

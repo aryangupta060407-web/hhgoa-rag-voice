@@ -303,7 +303,7 @@ export function percentile(values: number[], p: number): number {
 }
 
 export function summarizeLatency(records: Array<Pick<StageLatency, keyof StageLatency>>): AnalyticsReport {
-  const stat = (values: number[]): LatencyPercentiles => ({ sampleSize: values.length, p50: percentile(values, 50), p70: percentile(values, 70), p100: percentile(values, 100) });
+  const stat = (values: number[]): LatencyPercentiles => ({ sampleSize: values.length, p50: percentile(values, 50), p70: percentile(values, 70), p95: percentile(values, 95), p99: percentile(values, 99), p100: percentile(values, 100) });
   const stageNames: Array<keyof StageLatency> = ["guardrailsMs", "cacheMs", "embeddingMs", "denseRetrievalMs", "lexicalRetrievalMs", "fusionMs", "extractionMs", "persistenceMs"];
   const perStage = Object.fromEntries(stageNames.map(stage => [stage, stat(records.map(record => Number(record[stage] ?? 0)))]));
   return {
