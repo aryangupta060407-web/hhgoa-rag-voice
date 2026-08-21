@@ -2,10 +2,18 @@ import { storageGetSignedUrl, storagePut } from "../storage";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import type { TranscriptionOutcome } from "./types";
 
-type AudioInput = { audioBase64: string; mimeType: string; fileName: string; language?: string };
+export type AudioInput = { audioBase64: string; mimeType: string; fileName: string; language?: string };
 
-function stripDataUrl(value: string) {
-  return value.replace(/^data:[^;]+;base64,/, "");
+type ProviderResult = { text: string; language: string | null };
+
+export type TranscriptionDependencies = {
+  sarvam?: (buffer: Buffer, input: AudioInput) => Promise<ProviderResult>;
+  whisper?: (buffer: Buffer, input: AudioInput) => Promise<ProviderResult>;
+};
+
+export function decodeAudioPayload(value: string) {
+  const base64 = value.replace(/^data:[^,]*;base64,/i, "");
+  return Buffer.from(base64, "base64");
 }
 
 async function retry<T>(operation: () => Promise<T>, attempts = 2): Promise<T> {
@@ -50,17 +58,22 @@ async function whisperFallback(buffer: Buffer, input: AudioInput) {
   return { text: result.text.trim(), language: result.language ?? null };
 }
 
-export async function transcribeWithFallback(input: AudioInput): Promise<TranscriptionOutcome> {
+export async function transcribeWithFallback(input: AudioInput, dependencies: TranscriptionDependencies = {}): Promise<TranscriptionOutcome> {
   const started = performance.now();
-  const buffer = Buffer.from(stripDataUrl(input.audioBase64), "base64");
+  const buffer = decodeAudioPayload(input.audioBase64);
   if (!buffer.length || buffer.length > 8 * 1024 * 1024) throw new Error("Audio must be between 1 byte and 8 MB");
   let primaryFailure: string | null = null;
   try {
-    const result = await sarvamTranscribe(buffer, input);
+    const result = await (dependencies.sarvam ?? sarvamTranscribe)(buffer, input);
     return { transcript: result.text, provider: "sarvam", language: result.language, latencyMs: Number((performance.now() - started).toFixed(3)), primaryFailure };
   } catch (error) {
     primaryFailure = error instanceof Error ? error.message : "Sarvam unavailable";
   }
-  const fallback = await whisperFallback(buffer, input);
-  return { transcript: fallback.text, provider: "whisper_fallback", language: fallback.language, latencyMs: Number((performance.now() - started).toFixed(3)), primaryFailure };
+  try {
+    const fallback = await (dependencies.whisper ?? whisperFallback)(buffer, input);
+    return { transcript: fallback.text, provider: "whisper_fallback", language: fallback.language, latencyMs: Number((performance.now() - started).toFixed(3)), primaryFailure };
+  } catch (error) {
+    const fallbackFailure = error instanceof Error ? error.message : "Whisper fallback unavailable";
+    throw new Error(`Voice transcription could not recover. Sarvam: ${primaryFailure}. Whisper fallback: ${fallbackFailure}`);
+  }
 }

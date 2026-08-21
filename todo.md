@@ -13,3 +13,6 @@
 - [x] Review the two user-provided low-latency non-LLM RAG references and incorporate their applicable methods into the architecture and project documentation.
 - [x] Add a dedicated voice transcript card in the result area so recorded speech is visible separately from the editable query field.
 - [x] Create explicit video-production and final-submission checklists and link them from the runbook.
+- [x] Fix the recorded-audio transcription failure that occurs when the voice path falls through to Whisper.
+- [x] Add an integration test that forces Sarvam failure and verifies a codec-qualified recorded WebM payload is handed intact to the Whisper fallback.
+- [x] Re-test the repaired voice-query route end to end and record evidence of a successful transcription response.
