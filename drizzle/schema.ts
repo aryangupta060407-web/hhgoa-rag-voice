@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +25,23 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+export const ragQueries = mysqlTable("rag_queries", {
+  id: int("id").autoincrement().primaryKey(),
+  transcript: text("transcript").notNull(),
+  normalizedQuery: text("normalizedQuery").notNull(),
+  answer: text("answer"),
+  answerMode: varchar("answerMode", { length: 32 }).notNull(),
+  guardrailStatus: varchar("guardrailStatus", { length: 16 }).notNull(),
+  guardrailReasons: json("guardrailReasons").notNull(),
+  sourcePayload: json("sourcePayload").notNull(),
+  latencyPayload: json("latencyPayload").notNull(),
+  transcriptionProvider: varchar("transcriptionProvider", { length: 32 }),
+  executionType: varchar("executionType", { length: 16 }).notNull().default("live"),
+  retrievalToAnswerMs: int("retrievalToAnswerMs").notNull(),
+  transcriptionMs: int("transcriptionMs"),
+  totalMs: int("totalMs").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RagQuery = typeof ragQueries.$inferSelect;
+export type InsertRagQuery = typeof ragQueries.$inferInsert;

@@ -1,4 +1,41 @@
 @import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  :root {
+    --background: oklch(0.14 0.018 250);
+    --foreground: oklch(0.96 0.01 250);
+    --card: oklch(0.18 0.02 250);
+    --card-foreground: oklch(0.96 0.01 250);
+    --popover: oklch(0.18 0.02 250);
+    --popover-foreground: oklch(0.96 0.01 250);
+    --primary: oklch(0.76 0.14 165);
+    --primary-foreground: oklch(0.15 0.02 250);
+    --secondary: oklch(0.25 0.025 250);
+    --secondary-foreground: oklch(0.93 0.01 250);
+    --muted: oklch(0.25 0.025 250);
+    --muted-foreground: oklch(0.7 0.02 250);
+    --accent: oklch(0.25 0.025 250);
+    --accent-foreground: oklch(0.96 0.01 250);
+    --destructive: oklch(0.67 0.19 25);
+    --destructive-foreground: oklch(0.98 0.01 25);
+    --border: oklch(0.31 0.026 250);
+    --input: oklch(0.24 0.026 250);
+    --ring: oklch(0.76 0.14 165);
+    --radius: 0.9rem;
+  }
+  * { border-color: var(--border); }
+  body { @apply bg-background text-foreground antialiased; }
+}
+
+.noise-grid {
+  background-image: linear-gradient(rgba(185, 255, 225, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(185, 255, 225, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));

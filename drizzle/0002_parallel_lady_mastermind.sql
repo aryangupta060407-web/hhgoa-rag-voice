@@ -1,0 +1,1 @@
+ALTER TABLE `rag_queries` ADD `executionType` varchar(16) DEFAULT 'live' NOT NULL;
