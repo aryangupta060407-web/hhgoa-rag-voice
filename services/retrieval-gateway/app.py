@@ -53,6 +53,7 @@ class RetrievalRequest(BaseModel):
     limit: int = Field(default=3, ge=1, le=10)
     minGroundingScore: float = Field(default=0.3, ge=0, le=1)
     indexVersion: str | None = None
+    includeDiagnostics: bool = False
 
 
 def ms(start: float) -> float:
@@ -103,7 +104,7 @@ def best_sentence(content: str, query: str) -> tuple[str, float]:
     return max(((sentence, score_sentence(sentence, query)) for sentence in sentences), key=lambda item: item[1])
 
 
-async def qdrant_query(vector: list[float], sparse: Any | None, limit: int, language: str) -> tuple[list[dict], float]:
+async def qdrant_query(vector: list[float], sparse: Any | None, limit: int, language: str, include_diagnostics: bool = False) -> tuple[list[dict], float, dict[str, Any] | None]:
     dense_query: dict[str, Any] = {"query": vector, "limit": max(20, limit * 8), "with_payload": True}
     if QDRANT_DENSE_VECTOR_NAME:
         dense_query["using"] = QDRANT_DENSE_VECTOR_NAME
@@ -127,7 +128,21 @@ async def qdrant_query(vector: list[float], sparse: Any | None, limit: int, lang
     elapsed = ms(start)
     if response.status_code != 200:
         raise HTTPException(status_code=503, detail=f"Qdrant returned {response.status_code}: {response.text[:240]}")
-    return response.json()["result"]["points"], elapsed
+    fused_points = response.json()["result"]["points"]
+    diagnostics: dict[str, Any] | None = None
+    if include_diagnostics:
+        sparse_query: dict[str, Any] = {"query": {"indices": sparse.indices.tolist(), "values": sparse.values.tolist()}, "using": "bm25", "limit": max(20, limit * 8), "with_payload": True} if QDRANT_ENABLE_SPARSE and sparse is not None else {}
+        if language in {"hi", "en", "mr"} and sparse_query:
+            sparse_query["filter"] = {"must": [{"key": PAYLOAD_LANGUAGE_FIELD, "match": {"value": language}}]}
+        async with httpx.AsyncClient(timeout=4.0) as client:
+            dense_response = await client.post(f"{QDRANT_URL}/collections/{COLLECTION}/points/query", headers=qdrant_headers(), json=dense_query)
+            sparse_response = await client.post(f"{QDRANT_URL}/collections/{COLLECTION}/points/query", headers=qdrant_headers(), json=sparse_query) if sparse_query else None
+        diagnostics = {
+            "denseResults": dense_response.json().get("result", {}).get("points", []) if dense_response.status_code == 200 else [],
+            "sparseResults": sparse_response.json().get("result", {}).get("points", []) if sparse_response is not None and sparse_response.status_code == 200 else [],
+            "rrfCandidates": fused_points,
+        }
+    return fused_points, elapsed, diagnostics
 
 
 @app.get("/healthz")
@@ -176,7 +191,7 @@ async def retrieve(request: RetrievalRequest, authorization: str | None = Header
         sparse_vector = sparse_future.result() if sparse_future else None
     query_embedding_ms = ms(embedding_start)
 
-    points, hybrid_search_ms = await qdrant_query(dense_vector, sparse_vector, request.limit, request.language)
+    points, hybrid_search_ms, diagnostics = await qdrant_query(dense_vector, sparse_vector, request.limit, request.language, request.includeDiagnostics)
     rerank_start = time.perf_counter()
     matches = []
     for point in points:
@@ -194,7 +209,13 @@ async def retrieve(request: RetrievalRequest, authorization: str | None = Header
             "denseScore": float(point.get("score", 0.0)),
             "sparseScore": 0.0,
             "rrfScore": float(point.get("score", 0.0)),
-            "source": {"dataset": payload.get("dataset") or PAYLOAD_DATASET or "unverified-source", "split": payload.get("split") or PAYLOAD_SPLIT or "unverified-split", "queryId": payload.get("queryId", payload.get("metadata", {}).get("doc_id")), "passageOrdinal": payload.get("passageOrdinal")},
+            "rerankerScore": coverage,
+            "contextSufficiencyScore": coverage,
+            "extractiveAnswerCandidates": [{"sentence": sentence, "score": coverage}],
+            "source": {"dataset": payload.get("dataset") or PAYLOAD_DATASET or "unverified-source", "split": payload.get("split") or PAYLOAD_SPLIT or "unverified-split", "queryId": payload.get("queryId", payload.get("metadata", {}).get("doc_id")), "sourceQueryIds": payload.get("sourceQueryIds", payload.get("source_query_ids", [])), "passageOrdinal": payload.get("passageOrdinal")},
         })
     fusion_ms = ms(rerank_start)
-    return {"indexVersion": COLLECTION, "matches": matches, "timings": {"queryEmbeddingMs": query_embedding_ms, "denseSearchMs": hybrid_search_ms, "sparseSearchMs": hybrid_search_ms if QDRANT_ENABLE_SPARSE else 0.0, "fusionMs": fusion_ms, "totalMs": round(query_embedding_ms + hybrid_search_ms + fusion_ms, 3)}}
+    response_payload: dict[str, Any] = {"indexVersion": COLLECTION, "matches": matches, "timings": {"queryEmbeddingMs": query_embedding_ms, "denseSearchMs": hybrid_search_ms, "sparseSearchMs": hybrid_search_ms if QDRANT_ENABLE_SPARSE else 0.0, "fusionMs": fusion_ms, "totalMs": round(query_embedding_ms + hybrid_search_ms + fusion_ms, 3)}}
+    if diagnostics is not None:
+        response_payload["diagnostics"] = diagnostics
+    return response_payload

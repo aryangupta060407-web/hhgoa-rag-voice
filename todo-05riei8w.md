@@ -53,3 +53,9 @@
 - [x] Test the exact Devanagari wording variant and confirm unsupported-query refusal remains intact in local and gateway-backed modes.
 - [x] Verify the exact Devanagari eagle-speed wording variant through the external gateway contract.
 - [x] Verify an unsupported query still refuses through the external gateway contract after wording normalization.
+- [x] Instrument the deterministic RAG path with the requested dense, sparse, fusion, reranking, sufficiency, extraction, grounding, and failure-category diagnostic trace.
+- [x] Run and preserve an audited 50-plus-query Hindi, English, and Marathi coverage diagnosis without an LLM or architecture rewrite.
+- [x] Produce coverage, refusal, recall, failure-breakdown, representative-passage, and minimum-change recommendation report from measured diagnostic evidence.
+- [x] Add visible in-flight transcript and answer-loading feedback to the query UI without changing the deterministic answer path.
+- [x] Run the 50-plus-query audit against the actual external Qdrant gateway and capture real dense, BM25, RRF, reranking, sufficiency, grounding, and outcome traces.
+- [x] Generate the final coverage report from the live gateway audit, including ten actual hybrid-retrieval failures with passages and scores.
