@@ -63,4 +63,16 @@ describe("scalable RAG service", () => {
     expect(result.guardrails.reasons).toContain("unsafe_input");
     expect(fetchImpl).not.toHaveBeenCalled();
   });
+
+  it("refuses unsupported Hindi personal questions before contacting the configured gateway", async () => {
+    const fetchImpl = vi.fn();
+    const result = await runRagQuery("मेरा नाम क्या है?", {
+      gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      fetchImpl,
+    });
+
+    expect(result.answerMode).toBe("refusal");
+    expect(result.guardrails.reasons).toContain("insufficient_grounding");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
 });

@@ -1,5 +1,5 @@
 import { getRetrievalGatewayConfig, retrieveFromGateway, type RetrievalGatewayConfig } from "./retrievalGateway";
-import { isUnsafeQuery, normalizeQuery, runDeterministicRag, tokenize } from "./pipeline";
+import { hasGroundableTerms, isUnsafeQuery, normalizeQuery, runDeterministicRag, tokenize } from "./pipeline";
 import type { RagOutcome, RetrievedSource, StageLatency } from "./types";
 
 type ServiceOptions = {
@@ -52,6 +52,12 @@ async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewa
     latency.retrievalToAnswerMs = elapsed(started);
     latency.totalMs = latency.retrievalToAnswerMs;
     return refusal(query, latency, "unsafe_input", "I cannot help with that request.");
+  }
+  if (!hasGroundableTerms(query)) {
+    latency.guardrailsMs = elapsed(guardrailStart);
+    latency.retrievalToAnswerMs = elapsed(started);
+    latency.totalMs = latency.retrievalToAnswerMs;
+    return refusal(query, latency, "insufficient_grounding");
   }
   latency.guardrailsMs = elapsed(guardrailStart);
 

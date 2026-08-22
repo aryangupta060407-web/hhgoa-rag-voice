@@ -24,7 +24,10 @@ const AMBIGUOUS_FOLLOW_UP_PATTERNS = [
   /\b(?:can you )?(?:explain|describe|clarify)\s+(?:that|this|it|one)\b/i,
   /\b(?:tell me about|what about)\s+(?:that|this|it|one)\b/i,
 ];
-const STOP_WORDS = new Set(["a", "an", "and", "are", "at", "be", "by", "does", "for", "from", "has", "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with"]);
+const STOP_WORDS = new Set([
+  "a", "an", "and", "are", "at", "be", "by", "does", "for", "from", "has", "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with",
+  "क्या", "है", "हैं", "था", "थी", "थे", "मेरा", "मेरी", "मेरे", "तुम्हारा", "तुम्हारी", "तुम्हारे", "आपका", "आपकी", "आपके", "नाम", "कौन", "कौनसा", "कौनसी", "कहाँ", "कब", "कैसे", "कितना", "कितने", "की", "का", "के", "को", "में", "और", "से", "पर", "यह", "वह", "उस", "इस", "एक", "मैं", "हम", "आप", "तुम", "भी",
+]);
 
 type CacheEntry = { query: string; vector: Float64Array; outcome: RagOutcome };
 type RankedCandidate = { chunk: IndexedChunk; dense: number; lexical: number; rrf: number; relevance: number };
@@ -51,6 +54,10 @@ export function tokenize(input: string) {
     .match(/[A-Za-z0-9\u0900-\u097F]+/g)
     ?.map(token => token.length > 4 && token.endsWith("s") ? token.slice(0, -1) : token)
     .filter(token => token.length > 1 && !STOP_WORDS.has(token)) ?? [];
+}
+
+export function hasGroundableTerms(input: string) {
+  return tokenize(input).length > 0;
 }
 
 function hash(value: string) {

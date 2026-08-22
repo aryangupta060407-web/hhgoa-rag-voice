@@ -20,3 +20,10 @@
 - [x] Assess local and hosted Qdrant plus BM25 deployment options for the HH Goa submission.
 - [x] Define the retrieval gateway API contract and exact end-to-end setup steps.
 - [x] Recommend the lowest-risk path for the submission without requiring unavailable credentials.
+- [ ] Inspect the existing 150,000-chunk Qdrant collection metadata and payload schema.
+- [ ] Confirm embedding-model, vector-name, distance, and provenance compatibility with the grounded retrieval gateway.
+- [ ] Configure server-only connectivity to the existing Qdrant-backed gateway and validate source-grounded retrieval.
+- [ ] Benchmark the integrated 150,000-chunk collection and report the actual latency results.
+- [x] Diagnose why unsupported Hindi questions such as "मेरा नाम क्या है?" can receive unrelated answers.
+- [x] Tighten Hindi grounding thresholds and add a regression test requiring refusal when evidence is unrelated.
+- [ ] Inspect the Qdrant backup once it is successfully uploaded, or use equivalent endpoint and collection metadata.

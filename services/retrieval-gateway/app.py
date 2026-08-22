@@ -21,6 +21,10 @@ UNSAFE_PATTERNS = [
     re.compile(r"\b(?:kill|harm)\s+(?:myself|yourself|someone)\b", re.I),
     re.compile(r"\b(?:suicide|self[- ]harm)\b", re.I),
 ]
+STOP_WORDS = {
+    "a", "an", "and", "are", "at", "be", "by", "does", "for", "from", "has", "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with",
+    "क्या", "है", "हैं", "था", "थी", "थे", "मेरा", "मेरी", "मेरे", "तुम्हारा", "तुम्हारी", "तुम्हारे", "आपका", "आपकी", "आपके", "नाम", "कौन", "कौनसा", "कौनसी", "कहाँ", "कब", "कैसे", "कितना", "कितने", "की", "का", "के", "को", "में", "और", "से", "पर", "यह", "वह", "उस", "इस", "एक", "मैं", "हम", "आप", "तुम", "भी",
+}
 
 app = FastAPI(title="HH Goa Retrieval Gateway", version="1.0.0")
 dense_model = TextEmbedding(model_name=DENSE_MODEL)
@@ -44,7 +48,7 @@ def normalize(value: str) -> str:
 
 
 def tokens(value: str) -> list[str]:
-    return re.findall(r"[A-Za-z0-9\u0900-\u097F]+", normalize(value).lower())
+    return [token for token in re.findall(r"[A-Za-z0-9\u0900-\u097F]+", normalize(value).lower()) if token not in STOP_WORDS]
 
 
 def qdrant_headers() -> dict[str, str]:
@@ -114,6 +118,8 @@ async def retrieve(request: RetrievalRequest, authorization: str | None = Header
     query = normalize(request.query)
     if any(pattern.search(query) for pattern in UNSAFE_PATTERNS):
         raise HTTPException(status_code=400, detail="Unsafe request")
+    if not tokens(query):
+        return {"indexVersion": COLLECTION, "matches": [], "timings": {"queryEmbeddingMs": 0.0, "denseSearchMs": 0.0, "sparseSearchMs": 0.0, "fusionMs": 0.0, "totalMs": 0.0}}
 
     embedding_start = time.perf_counter()
     with ThreadPoolExecutor(max_workers=2) as executor:

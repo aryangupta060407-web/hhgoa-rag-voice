@@ -41,6 +41,15 @@ describe("deterministic extractive RAG pipeline", () => {
     expect(result.sources).toEqual([]);
   });
 
+  it("refuses a Hindi personal question when no meaningful evidence term remains", () => {
+    clearSemanticCache();
+    const result = runDeterministicRag("मेरा नाम क्या है?");
+
+    expect(result.guardrails.status).toBe("refused");
+    expect(result.answerMode).toBe("refusal");
+    expect(result.sources).toEqual([]);
+  });
+
   it("uses the semantic cache only for an identical normalized query", () => {
     clearSemanticCache();
     runDeterministicRag("What is a corporation?");
