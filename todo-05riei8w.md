@@ -87,3 +87,4 @@
 - [x] Add a source-verifiable Marathi compact audit plus unsupported/personal refusal metrics across all three languages, or document the missing Marathi query-mapping blocker.
 - [x] Refuse compact-demo named-entity questions when their entity is absent from selected evidence, including “Who is first president of India?”.
 - [x] Remove or truthfully relabel compact-local latency percentiles so they are not mistaken for live voice or full-index latency.
+- [x] Rename the visible project identity and application metadata to संवाद (Samvad) without changing the RAG pipeline.
