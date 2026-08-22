@@ -1,4 +1,4 @@
-import { SOURCE_DOCUMENTS } from "./corpus";
+import { SOURCE_DOCUMENTS, SUPPLEMENTAL_COMPACT_SOURCE_PASSAGES } from "./corpus";
 import type {
   AnalyticsReport,
   ChunkStrategy,
@@ -31,6 +31,11 @@ const STOP_WORDS = new Set([
   "hai", "hain", "se", "ka", "ki", "ke", "mein", "par", "aur", "kitni", "kitna", "kya", "kahan", "kab", "kaise", "mera", "naam", "mujhe", "ko",
   "क्या", "है", "हैं", "था", "थी", "थे", "मेरा", "मेरी", "मेरे", "तुम्हारा", "तुम्हारी", "तुम्हारे", "आपका", "आपकी", "आपके", "नाम", "कौन", "कौनसा", "कौनसी", "कहाँ", "कब", "कैसे", "कितना", "कितने", "की", "का", "के", "को", "में", "और", "से", "पर", "यह", "वह", "उस", "इस", "एक", "मैं", "हम", "आप", "तुम", "भी",
   "माझे", "माझा", "माझी", "तुझे", "तुझा", "तुझी", "तुमचे", "तुमचा", "तुमची", "नाव", "कोण", "काय", "आहे", "आहेत", "होता", "होती", "होते", "कुठे", "कधी", "कसे", "किती", "चा", "ची", "चे", "ला", "मध्ये", "आणि", "पण", "हे", "तो", "ती", "ते", "या", "त्या", "एक", "मी", "आम्ही", "तुम्ही", "आपण",
+]);
+const GENERIC_RETRIEVAL_TERMS = new Set([
+  "do", "does", "did", "fast", "speed", "travel", "quick", "quickly", "long", "time", "times", "year", "years", "work", "works", "history", "make", "made", "making", "cook", "cooking", "recipe", "recipes",
+  "meaning", "mean", "define", "definition", "effect", "effects", "cost", "costs", "price", "prices", "rate", "rates",
+  "रफ्तार", "तेजी", "गति", "उड़ते", "यात्रा", "समय", "परिपक्व", "स्थित", "पैदा", "हुए", "जन्म",
 ]);
 
 type CacheEntry = { query: string; vector: Float64Array; outcome: RagOutcome };
@@ -162,6 +167,30 @@ function buildIndex() {
       });
     }
   }
+  for (const passage of SUPPLEMENTAL_COMPACT_SOURCE_PASSAGES) {
+    const strategies: ChunkStrategy[] = ["fixed_overlap", "semantic_sentence", "metadata_aware"];
+    for (const strategy of strategies) {
+      const chunks = strategy === "fixed_overlap"
+        ? splitFixed(passage.content)
+        : strategy === "semantic_sentence"
+          ? splitSemantic(passage.content)
+          : [`Language: ${passage.language}. Source text: ${passage.content}`];
+      chunks.forEach((content, ordinal) => {
+        indexed.push({
+          id: `supplemental-${passage.passageId}-${strategy}-${ordinal}`,
+          queryId: passage.sourceQueryId,
+          queryType: "DESCRIPTION",
+          language: passage.language,
+          strategy,
+          content,
+          englishContent: passage.content,
+          translatedContent: passage.content,
+          vector: embed(content),
+          tokenSet: new Set(tokenize(content)),
+        });
+      });
+    }
+  }
   return indexed;
 }
 
@@ -228,10 +257,13 @@ function guardrailFor(query: string, queryTokens: string[], top: RankedCandidate
   const vocabularyMatches = queryTokens.filter(token => CORPUS_VOCABULARY.has(token)).length;
   const domainAffinity = queryTokens.length ? vocabularyMatches / queryTokens.length : 0;
   const coverage = top ? lexicalScore(queryTokens, top.chunk.tokenSet) : 0;
+  const subjectAnchors = queryTokens.filter(token => !GENERIC_RETRIEVAL_TERMS.has(token));
+  const subjectAnchorMatch = top ? subjectAnchors.some(token => top.chunk.tokenSet.has(token)) : false;
   const groundingConfidence = top ? Number((Math.max(0, top.dense) * 0.45 + coverage * 0.55).toFixed(3)) : 0;
   const reasons: GuardrailDecision["reasons"] = [];
   if (unsafe) reasons.push("unsafe_input");
   if (!unsafe && ambiguousFollowUp) reasons.push("insufficient_grounding");
+  if (!unsafe && !ambiguousFollowUp && !subjectAnchorMatch) reasons.push("off_topic");
   if (!unsafe && (domainAffinity < MIN_DOMAIN_AFFINITY || coverage < MIN_EVIDENCE_COVERAGE)) reasons.push("off_topic");
   if (!unsafe && reasons.length === 0 && groundingConfidence < 0.16) reasons.push("insufficient_grounding");
   return { status: reasons.length ? "refused" : "passed", reasons, domainAffinity: Number(domainAffinity.toFixed(3)), groundingConfidence };

@@ -1,4 +1,6 @@
 import type { SourceDocument } from "./types";
+import { EXPANDED_COMPACT_SOURCE_PASSAGES } from "./compactCorpus.generated";
+import { COMPACT_VALIDATION_DOCUMENTS } from "./compactValidation.generated";
 
 /**
  * A provenance-preserving compact validation slice extracted offline from
@@ -99,4 +101,7 @@ export const SOURCE_DOCUMENTS: SourceDocument[] = [
     englishPassage: "The term arbitrary describes a course of action or a decision that is not based on reason or judgment but on personal will or discretion without regard to rules or standards. An arbitrary decision is made without regard for facts and circumstances presented.",
     translatedPassage: "मनमाना शब्द कार्रवाई के तरीके या निर्णय का वर्णन करता है जो तर्क या निर्णय पर आधारित नहीं है, बल्कि नियमों या मानकों की परवाह किए बिना व्यक्तिगत इच्छा या विवेक पर आधारित होता है। मनमाना निर्णय प्रस्तुत तथ्यों और परिस्थितियों की परवाह किए बिना लिया जाता है।",
   },
+  ...COMPACT_VALIDATION_DOCUMENTS,
 ];
+
+export const SUPPLEMENTAL_COMPACT_SOURCE_PASSAGES = EXPANDED_COMPACT_SOURCE_PASSAGES;

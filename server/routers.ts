@@ -136,9 +136,9 @@ export const appRouter = router({
         configured: false,
         reachable: true,
         targetLatencyMs: 200,
-        indexVersion: "compact-validation-slice",
-        pointsCount: 7,
-        vectorsCount: 7,
+        indexVersion: "compact-multilingual-source-slice-v2",
+        pointsCount: 152,
+        vectorsCount: 152,
         status: "ready",
       };
     }),

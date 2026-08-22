@@ -12,6 +12,13 @@ export type SourceDocument = {
   translatedPassage: string;
 };
 
+export type SupplementalSourcePassage = {
+  sourceQueryId: number;
+  passageId: string;
+  language: string;
+  content: string;
+};
+
 export type IndexedChunk = {
   id: string;
   queryId: number;

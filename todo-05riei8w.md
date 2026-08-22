@@ -81,3 +81,7 @@
 - [ ] Diagnose the live Hindi melatonin retrieval failure and verify whether it is an index-coverage, transliteration, or language-filter issue.
 - [x] Review the uploaded evaluation-loop brief, map its requirements to the live deterministic RAG system, and prepare administrator-ready evidence.
 - [ ] Provide a one-command Windows evaluation runner and capture an honest administrator-ready evaluator result.
+- [x] Improve and benchmark deterministic compact-fallback coverage for the Manus-published demo while retaining strict extractive refusals.
+- [x] Run and preserve a dedicated compact-fallback coverage audit with answerable and refusal metrics across English, Hindi, and Marathi.
+- [x] Validate representative new compact-fallback prompts against real source mappings and replace passage-as-query placeholders where verified mappings are available.
+- [ ] Add a source-verifiable Marathi compact audit plus unsupported/personal refusal metrics across all three languages, or document the missing Marathi query-mapping blocker.

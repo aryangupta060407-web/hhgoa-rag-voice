@@ -1,0 +1,10 @@
+{
+  "corpus": "compact-validation-documents-v2",
+  "documents": 24,
+  "cases": 48,
+  "extractivePassed": 48,
+  "refused": 0,
+  "extractivePassRate": 1,
+  "p95LatencyMs": 5.08,
+  "failures": []
+}
