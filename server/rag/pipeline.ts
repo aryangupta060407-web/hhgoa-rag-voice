@@ -15,6 +15,8 @@ const DIMENSIONS = 384;
 const TOP_K = 3;
 const CACHE_LIMIT = 64;
 const RRF_K = 60;
+const MIN_DOMAIN_AFFINITY = 0.4;
+const MIN_EVIDENCE_COVERAGE = 0.3;
 const UNSAFE_PATTERNS = [
   /\b(?:build|make|buy)\s+(?:a\s+)?(?:bomb|explosive|weapon)\b/i,
   /\b(?:kill|harm)\s+(?:myself|yourself|someone)\b/i,
@@ -212,7 +214,7 @@ function guardrailFor(query: string, queryTokens: string[], top: RankedCandidate
   const reasons: GuardrailDecision["reasons"] = [];
   if (unsafe) reasons.push("unsafe_input");
   if (!unsafe && ambiguousFollowUp) reasons.push("insufficient_grounding");
-  if (!unsafe && (domainAffinity < 0.12 || coverage < 0.12)) reasons.push("off_topic");
+  if (!unsafe && (domainAffinity < MIN_DOMAIN_AFFINITY || coverage < MIN_EVIDENCE_COVERAGE)) reasons.push("off_topic");
   if (!unsafe && reasons.length === 0 && groundingConfidence < 0.16) reasons.push("insufficient_grounding");
   return { status: reasons.length ? "refused" : "passed", reasons, domainAffinity: Number(domainAffinity.toFixed(3)), groundingConfidence };
 }

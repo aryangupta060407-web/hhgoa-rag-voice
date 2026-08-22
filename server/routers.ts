@@ -4,7 +4,8 @@ import { getRecentRagQueries, insertRagQuery } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { benchmarkQueries, clearSemanticCache, summarizeLatency } from "./rag/pipeline";
+import { summarizeLatency } from "./rag/pipeline";
+import { runBenchmarkSuite } from "./rag/benchmark";
 import { getGatewayIndexStatus, getRetrievalGatewayConfig } from "./rag/retrievalGateway";
 import { runRagQuery } from "./rag/service";
 import { transcribeWithFallback } from "./rag/transcription";
@@ -142,18 +143,7 @@ export const appRouter = router({
       };
     }),
     benchmark: publicProcedure.mutation(async () => {
-      const outcomes: RagOutcome[] = [];
-      for (const query of benchmarkQueries()) {
-        clearSemanticCache();
-        const outcome = await runRagQuery(query);
-        await persistOutcome(outcome, undefined, undefined, "benchmark");
-        outcomes.push(outcome);
-      }
-      return {
-        queryCount: outcomes.length,
-        analytics: summarizeLatency(outcomes.map(outcome => outcome.latency)),
-        passed: outcomes.filter(outcome => outcome.guardrails.status === "passed").length,
-      };
+      return runBenchmarkSuite();
     }),
   }),
 });

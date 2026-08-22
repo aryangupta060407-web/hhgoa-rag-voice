@@ -9,6 +9,7 @@ type ServiceOptions = {
 };
 
 const NO_CONTEXT_RESPONSE = "I couldn't find enough relevant information in the provided dataset to answer this question.";
+const MIN_EXTRACTIVE_COVERAGE = 0.3;
 
 function elapsed(start: number) {
   return Number((performance.now() - start).toFixed(3));
@@ -63,7 +64,7 @@ async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewa
   latency.guardrailsMs = elapsed(guardrailStart);
 
   try {
-    const gateway = await retrieveFromGateway({ query, language, limit: 3, minGroundingScore: 0.16 }, config, fetchImpl);
+    const gateway = await retrieveFromGateway({ query, language, limit: 3, minGroundingScore: MIN_EXTRACTIVE_COVERAGE }, config, fetchImpl);
     latency.embeddingMs = gateway.timings.queryEmbeddingMs;
     latency.denseRetrievalMs = gateway.timings.denseSearchMs;
     latency.lexicalRetrievalMs = gateway.timings.sparseSearchMs;
@@ -74,7 +75,7 @@ async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewa
     const best = selected.sort((left, right) => right.extracted.coverage - left.extracted.coverage || right.match.rrfScore - left.match.rrfScore)[0];
     latency.extractionMs = elapsed(extractionStarted);
 
-    if (!best || best.extracted.coverage < 0.12 || !best.extracted.sentence || !best.match.content.includes(best.extracted.sentence)) {
+    if (!best || best.extracted.coverage < MIN_EXTRACTIVE_COVERAGE || !best.extracted.sentence || !best.match.content.includes(best.extracted.sentence)) {
       latency.retrievalToAnswerMs = elapsed(started);
       latency.totalMs = latency.retrievalToAnswerMs;
       return refusal(query, latency, "insufficient_grounding");

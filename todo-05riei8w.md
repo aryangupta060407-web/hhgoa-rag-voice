@@ -42,3 +42,6 @@
 - [x] Integrate multilingual corpus state, language-aware grounding, and real index metadata into the app.
 - [x] Benchmark factual and unsupported queries in each language with measured latency percentiles.
 - [x] Produce an audited three-language RAG status report, including any genuine persistent-hosting blocker.
+- [x] Assess whether US$100 in EC2 credits can fund a reliable full-corpus Qdrant and retrieval-gateway deployment, including a conservative instance and storage budget.
+- [x] Refuse unrelated Hindi questions such as “महात्मा गांधी कहाँ पर पैदा हुए थे?” when no sufficiently specific corpus evidence exists.
+- [x] Add a visible deterministic benchmark with factual, unsupported, and adversarial query categories plus accuracy and latency outcomes.

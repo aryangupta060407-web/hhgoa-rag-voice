@@ -51,7 +51,7 @@ class RetrievalRequest(BaseModel):
     query: str = Field(min_length=2, max_length=600)
     language: str = "auto"
     limit: int = Field(default=3, ge=1, le=10)
-    minGroundingScore: float = Field(default=0.16, ge=0, le=1)
+    minGroundingScore: float = Field(default=0.3, ge=0, le=1)
     indexVersion: str | None = None
 
 
