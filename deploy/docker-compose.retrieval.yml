@@ -27,6 +27,6 @@ services:
       PAYLOAD_DOCUMENT_ID_FIELD: ${PAYLOAD_DOCUMENT_ID_FIELD:-queryId}
       MIN_DENSE_SCORE: ${MIN_DENSE_SCORE:-0.28}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
 volumes:
   qdrant_storage:

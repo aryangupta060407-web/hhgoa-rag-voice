@@ -45,3 +45,6 @@
 - [x] Assess whether US$100 in EC2 credits can fund a reliable full-corpus Qdrant and retrieval-gateway deployment, including a conservative instance and storage budget.
 - [x] Refuse unrelated Hindi questions such as “महात्मा गांधी कहाँ पर पैदा हुए थे?” when no sufficiently specific corpus evidence exists.
 - [x] Add a visible deterministic benchmark with factual, unsupported, and adversarial query categories plus accuracy and latency outcomes.
+- [x] Document the exact local-preview and persistent-host connection procedure for the verified 8,311-passage Qdrant index.
+- [x] Restyle the web interface using the provided HH Goa website as the visual reference while preserving the deterministic RAG interaction model.
+- [x] Produce a deployment runbook for a Vercel-served frontend and EC2-hosted protected retrieval backend, including CORS, API routing, secrets, and validation.
