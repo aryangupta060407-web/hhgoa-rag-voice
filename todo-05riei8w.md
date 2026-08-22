@@ -59,3 +59,7 @@
 - [x] Add visible in-flight transcript and answer-loading feedback to the query UI without changing the deterministic answer path.
 - [x] Run the 50-plus-query audit against the actual external Qdrant gateway and capture real dense, BM25, RRF, reranking, sufficiency, grounding, and outcome traces.
 - [x] Generate the final coverage report from the live gateway audit, including ten actual hybrid-retrieval failures with passages and scores.
+- [ ] Prepare the verified 8,311-passage Qdrant gateway and its environment configuration for EC2 deployment.
+- [ ] Prepare the frontend/API configuration and Vercel release instructions for the split deployment.
+- [ ] Guide the authenticated AWS, Vercel, and DNS deployment steps, then validate the live end-to-end retrieval path.
+- [x] Package the complete portable project source, requirements, diagnostics, and deployment documentation into a safe downloadable ZIP without dependencies, local Qdrant data, or secrets.
