@@ -15,6 +15,8 @@ GATEWAY_TOKEN = os.environ.get("GATEWAY_TOKEN", "")
 COLLECTION = os.environ.get("QDRANT_COLLECTION", "msmarco_xi_hi_v1")
 DENSE_MODEL = os.environ.get("DENSE_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 SPARSE_MODEL = os.environ.get("SPARSE_MODEL", "Qdrant/bm25")
+EMBEDDING_BACKEND = os.environ.get("EMBEDDING_BACKEND", "fastembed")
+QUERY_PREFIX = os.environ.get("QUERY_PREFIX", "query: ")
 QDRANT_DENSE_VECTOR_NAME = os.environ.get("QDRANT_DENSE_VECTOR_NAME", "dense")
 QDRANT_ENABLE_SPARSE = os.environ.get("QDRANT_ENABLE_SPARSE", "true").lower() == "true"
 PAYLOAD_TEXT_FIELD = os.environ.get("PAYLOAD_TEXT_FIELD", "content")
@@ -35,8 +37,13 @@ STOP_WORDS = {
 }
 
 app = FastAPI(title="HH Goa Retrieval Gateway", version="1.0.0")
-dense_model = TextEmbedding(model_name=DENSE_MODEL)
-sparse_model = SparseTextEmbedding(model_name=SPARSE_MODEL)
+if EMBEDDING_BACKEND == "sentence-transformers":
+    from sentence_transformers import SentenceTransformer
+    dense_model = SentenceTransformer(DENSE_MODEL)
+    sparse_model = None
+else:
+    dense_model = TextEmbedding(model_name=DENSE_MODEL)
+    sparse_model = SparseTextEmbedding(model_name=SPARSE_MODEL) if QDRANT_ENABLE_SPARSE else None
 
 
 class RetrievalRequest(BaseModel):
@@ -61,6 +68,12 @@ def tokens(value: str) -> list[str]:
 
 def qdrant_headers() -> dict[str, str]:
     return {"api-key": QDRANT_API_KEY} if QDRANT_API_KEY else {}
+
+
+def dense_embed(text: str) -> list[float]:
+    if EMBEDDING_BACKEND == "sentence-transformers":
+        return dense_model.encode([f"{QUERY_PREFIX}{text}"], show_progress_bar=False, convert_to_numpy=True)[0].tolist()
+    return list(dense_model.embed([f"{QUERY_PREFIX}{text}"]))[0].tolist()
 
 
 def require_auth(authorization: str | None) -> None:
@@ -112,7 +125,7 @@ async def healthz():
         response = await client.get(f"{QDRANT_URL}/healthz", headers=qdrant_headers())
     if response.status_code != 200:
         raise HTTPException(status_code=503, detail="Qdrant is unavailable")
-    return {"status": "ok", "collection": COLLECTION, "denseModel": DENSE_MODEL, "sparseModel": SPARSE_MODEL if QDRANT_ENABLE_SPARSE else None, "denseVectorName": QDRANT_DENSE_VECTOR_NAME or "unnamed"}
+    return {"status": "ok", "collection": COLLECTION, "embeddingBackend": EMBEDDING_BACKEND, "denseModel": DENSE_MODEL, "sparseModel": SPARSE_MODEL if QDRANT_ENABLE_SPARSE else None, "denseVectorName": QDRANT_DENSE_VECTOR_NAME or "unnamed"}
 
 
 @app.get("/v1/index-status")
@@ -137,8 +150,8 @@ async def retrieve(request: RetrievalRequest, authorization: str | None = Header
 
     embedding_start = time.perf_counter()
     with ThreadPoolExecutor(max_workers=2 if QDRANT_ENABLE_SPARSE else 1) as executor:
-        dense_future = executor.submit(lambda: list(dense_model.embed([f"query: {query}"]))[0].tolist())
-        sparse_future = executor.submit(lambda: list(sparse_model.embed([query]))[0]) if QDRANT_ENABLE_SPARSE else None
+        dense_future = executor.submit(dense_embed, query)
+        sparse_future = executor.submit(lambda: list(sparse_model.embed([query]))[0]) if QDRANT_ENABLE_SPARSE and sparse_model else None
         dense_vector = dense_future.result()
         sparse_vector = sparse_future.result() if sparse_future else None
     query_embedding_ms = ms(embedding_start)

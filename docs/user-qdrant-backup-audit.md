@@ -36,18 +36,16 @@ The reported prompt `मेरा नाम क्या है?` now returns **
 
 ## Critical missing metadata
 
-The backup does not contain the embedding model name or the exact passage/query prefix convention used to create the vectors. This cannot be inferred reliably from the vector dimension alone. A direct stored-vector comparison showed that the current default encoder does not match the stored space: re-encoding a stored passage with `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` produced cosine similarity **0.073745** to its own stored vector, where a matching encoder should produce a value near 1.0.
+The backup itself does not contain the embedding model name. The user-supplied indexing implementation resolves this: it used the non-generative `intfloat/multilingual-e5-small` model through a local SentenceTransformers or FastEmbed backend and passed raw text to both document and query encoders—no E5 `query:` or `passage:` prefix was applied by that code. A direct stored-vector comparison confirms this exact local SentenceTransformers configuration: re-encoding a stored passage produced cosine similarity **1.0** to its own stored vector. The former gateway encoder, `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, produced **0.073745**, proving it was incompatible.
 
-Therefore the gateway applies the conservative dense-only score floor and refuses low-confidence results. This eliminates unrelated answers, but it also means factual answers will remain limited until the original encoder is identified.
+The gateway is now configured to use the recovered non-generative E5 encoder for this collection. It retains the conservative dense-only score floor so unsupported questions remain refusals rather than unrelated answers.
 
 ## Required final input
 
-Please provide the exact model name and the text fed into it when the index was built, for example:
+The recovered settings are `EMBEDDING_BACKEND=sentence-transformers`, `DENSE_MODEL=intfloat/multilingual-e5-small`, and `QUERY_PREFIX=`. This resolves the vector-space blocker.
 
-```text
-model = ...
-document input = text | passage: {text} | another template
-query input = query | query: {query} | another template
-```
+## Grounded retrieval and benchmark result
 
-If that information is unavailable, the reliable alternative is to rebuild the 149,456 vectors from the stored `text` payload using a documented multilingual model and then deploy the matching query encoder.
+With the recovered encoder configuration, the factual Hindi question `मैनहट्टन परियोजना क्या है?` retrieved the correct Manhattan Project evidence. The top stored chunk had a dense cosine score of **0.901169**, and its evidence text states that the project was a Second World War research and development undertaking that created the first nuclear weapons. The unsupported question `मेरा नाम क्या है?` returned zero evidence matches.
+
+After warm-up, 20 repeated factual requests against the locally restored 149,456-point collection measured HTTP **P50 54.627 ms**, **P70 55.667 ms**, **P95 65.141 ms**, **P99 65.933 ms**, and **P100 65.933 ms**. This validates the local gateway path, not public-network or STT latency.

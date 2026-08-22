@@ -52,9 +52,11 @@ Set `CORPUS_RETRIEVAL_URL=https://your-host/v1/retrieve` and the matching `CORPU
 
 The gateway accepts named dense vectors plus optional Qdrant sparse/BM25 vectors by default. For the supplied `msmarco_xi` backup, use the actual collection settings: `QDRANT_COLLECTION=msmarco_xi`, `QDRANT_DENSE_VECTOR_NAME=` (empty for its unnamed vector), `QDRANT_ENABLE_SPARSE=false`, `PAYLOAD_TEXT_FIELD=text`, and `PAYLOAD_DOCUMENT_ID_FIELD=chunk_id`. The restored collection contains 149,456 points, 147,000 indexed HNSW vectors, 384-dimensional cosine vectors, and payload fields `chunk_id`, `text`, `strategy`, `metadata.doc_id`, and `token_count`.
 
-> The archive does not record the embedding-model name. The query encoder **must match the model used to create its 384-dimensional vectors**; otherwise semantically unrelated answers can rank highly even when the Qdrant schema is correct. Until that model is identified, dense-only retrieval applies a conservative `MIN_DENSE_SCORE=0.28` floor and refuses low-confidence results instead of returning a different answer.
+> The query encoder **must match the model used to create its 384-dimensional vectors**; otherwise semantically unrelated answers can rank highly even when the Qdrant schema is correct. The supplied indexing implementation identified this collection's matching non-generative encoder as `intfloat/multilingual-e5-small` through SentenceTransformers, using raw text with no query or passage prefix. Dense-only retrieval retains a conservative `MIN_DENSE_SCORE=0.28` floor so unsupported questions refuse rather than returning a different answer.
 
 The supplied backup was restored successfully for inspection: `msmarco_xi` has 149,456 points and 147,000 HNSW-indexed vectors. It does **not** contain its original encoder metadata or explicit dataset/split provenance. The gateway labels provenance as unverified rather than fabricating it. See `docs/user-qdrant-backup-audit.md` for the exact verified payload schema, local restore result, and the required encoder information.
+
+The supplied indexing source resolved the encoder configuration: `EMBEDDING_BACKEND=sentence-transformers`, `DENSE_MODEL=intfloat/multilingual-e5-small`, and an empty `QUERY_PREFIX`. Against the restored collection, this configuration returned correct Manhattan Project evidence for a factual Hindi query. A warm 20-request local benchmark measured HTTP P50/P70/P95/P99/P100 of **54.627 / 55.667 / 65.141 / 65.933 / 65.933 ms**.
 
 ## Benchmarking
 

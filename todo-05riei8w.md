@@ -22,12 +22,17 @@
 - [x] Recommend the lowest-risk path for the submission without requiring unavailable credentials.
 - [x] Inspect the existing 150,000-chunk Qdrant collection metadata and payload schema.
 - [x] Confirm vector-name, distance, provenance, and the missing embedding-model compatibility metadata; record the exact encoder blocker.
-- [ ] Configure server-only connectivity to the existing Qdrant-backed gateway and validate source-grounded retrieval.
-- [ ] Benchmark the integrated 150,000-chunk collection and report the actual latency results.
+- [x] Configure and validate the local server-only gateway against the existing Qdrant-backed collection with a correct grounded Hindi answer.
+- [x] Benchmark the integrated 149,456-point collection and record the actual local latency results.
 - [x] Diagnose why unsupported Hindi questions such as "मेरा नाम क्या है?" can receive unrelated answers.
 - [x] Tighten Hindi grounding thresholds and add a regression test requiring refusal when evidence is unrelated.
 - [x] Inspect the Qdrant backup from the supplied Drive source and record its actual collection metadata.
 - [x] Download the Qdrant backup from the supplied Google Drive link and safely inspect its archive contents.
 - [x] Extract the existing collection metadata, vector configuration, and payload schema from the provided backup.
 - [x] Adapt and validate the gateway against the actual 150,000-chunk Qdrant collection without inventing payload fields.
-- [ ] Obtain the original embedding model and query/passage template, then validate a correct grounded answer against the restored collection.
+- [x] Obtain the original embedding model and query/passage template, then validate a correct grounded answer against the restored collection.
+- [x] Inspect the supplied indexing script’s referenced embedding and corpus configuration to identify the exact model and template used.
+- [x] Validate the recovered encoder configuration against stored Qdrant vectors and complete real grounded retrieval tests.
+- [x] Validate `intfloat/multilingual-e5-small` without query or passage prefixes against the restored vectors.
+- [x] Configure the gateway for the recovered non-generative multilingual E5 encoder and validate factual Hindi retrieval.
+- [x] Benchmark the restored 149,456-point collection with the matched encoder.
