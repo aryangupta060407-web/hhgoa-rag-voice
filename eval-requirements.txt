@@ -1,0 +1,11 @@
+# Requirements for the supplied rag-local-eval-loop only.
+# Install into a dedicated Python virtual environment; these packages are not
+# required by the production Node/Qdrant deployment.
+faiss-cpu>=1.9.0
+sentence-transformers>=3.3.1
+numpy>=1.26.4
+pyarrow>=14.0.0
+huggingface_hub>=0.36.2
+python-dotenv>=1.2.2
+openai>=3.1.0
+anthropic>=0.122.0
