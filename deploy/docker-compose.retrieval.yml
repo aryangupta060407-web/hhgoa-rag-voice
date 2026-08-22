@@ -15,11 +15,11 @@ services:
       - qdrant
     environment:
       QDRANT_URL: http://qdrant:6333
-      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-msmarco_xi_hi_v1}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-msmarco_xi_hi_en_mr_v1}
       GATEWAY_TOKEN: ${GATEWAY_TOKEN:?Set_a_long_random_gateway_token}
-      DENSE_MODEL: ${DENSE_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
-      EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-fastembed}
-      QUERY_PREFIX: ${QUERY_PREFIX:-query: }
+      DENSE_MODEL: ${DENSE_MODEL:-intfloat/multilingual-e5-small}
+      EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-sentence-transformers}
+      QUERY_PREFIX: ${QUERY_PREFIX:-}
       SPARSE_MODEL: ${SPARSE_MODEL:-Qdrant/bm25}
       QDRANT_DENSE_VECTOR_NAME: ${QDRANT_DENSE_VECTOR_NAME:-dense}
       QDRANT_ENABLE_SPARSE: ${QDRANT_ENABLE_SPARSE:-true}

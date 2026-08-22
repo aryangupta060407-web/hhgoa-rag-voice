@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Square, Send, ShieldCheck, ShieldAlert, Database, Zap, Activity, Clock3, Volume2, ChevronRight, RefreshCw, Radio, History, CheckCircle2, AlertTriangle, FileSearch, TerminalSquare } from "lucide-react";
+import { Mic, Square, Send, ShieldCheck, ShieldAlert, Database, Zap, Activity, Clock3, Volume2, ChevronRight, RefreshCw, Radio, History, CheckCircle2, AlertTriangle, FileSearch, TerminalSquare, Languages } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 
@@ -45,6 +45,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<ResultLike | null>(null);
   const [recording, setRecording] = useState(false);
+  const [retrievalLanguage, setRetrievalLanguage] = useState<"auto" | "hi" | "en" | "mr">("auto");
   const [error, setError] = useState<string | null>(null);
   const [lastProvider, setLastProvider] = useState<string | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -72,7 +73,7 @@ export default function Home() {
   const submitText = () => {
     const value = query.trim();
     if (!value || busy) return;
-    textQuery.mutate({ query: value });
+    textQuery.mutate({ query: value, language: retrievalLanguage });
   };
   const dataUrl = async (blob: Blob) => new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error("Could not read microphone audio")); reader.readAsDataURL(blob); });
   const beginRecording = async () => {
@@ -90,7 +91,7 @@ export default function Home() {
         try {
           const audioBase64 = await dataUrl(blob);
           const normalizedMimeType = blob.type.startsWith("audio/webm") ? "audio/webm" : blob.type.startsWith("audio/ogg") ? "audio/ogg" : blob.type.startsWith("audio/wav") ? "audio/wav" : "audio/webm";
-          voiceQuery.mutate({ audioBase64, mimeType: normalizedMimeType, fileName: `voice-question-${Date.now()}.webm`, language: "en" });
+          voiceQuery.mutate({ audioBase64, mimeType: normalizedMimeType, fileName: `voice-question-${Date.now()}.webm`, language: retrievalLanguage });
         } catch (issue) { setError(issue instanceof Error ? issue.message : "Could not process the recording"); }
       };
       recorder.start(); recorderRef.current = recorder; setRecording(true);
@@ -110,13 +111,13 @@ export default function Home() {
     </header>
 
     <main className="mx-auto max-w-7xl px-5 py-7 lg:px-8 lg:py-10">
-      <section className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end"><div><p className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-primary">HH Goa 2026 · Task 02</p><h1 className="max-w-3xl text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">Grounded answers from voice.<br /><span className="text-primary">No generation. No guesswork.</span></h1><p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">A deterministic, evidence-first pipeline with offline multi-strategy chunking, hybrid retrieval, extractive answer selection, and visible stage-level latency. {corpusStatus.data?.mode === "external_gateway" ? `${corpusStatus.data.reachable ? `${corpusStatus.data.pointsCount.toLocaleString()} indexed passages · ${corpusStatus.data.indexVersion}` : "The configured full-corpus gateway is unreachable."}` : "The 7-record compact validation corpus is active; a full-corpus gateway can be connected without changing this interface."}</p></div><Button onClick={() => benchmark.mutate()} disabled={busy} variant="outline" className="h-10 border-primary/30 bg-primary/5 px-4 text-xs text-primary hover:bg-primary/15 hover:text-primary"><Activity size={15} />{benchmark.isPending ? "Running benchmark…" : "Run 24-query cold benchmark"}</Button></section>
+      <section className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end"><div><p className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-primary">HH Goa 2026 · Task 02</p><h1 className="max-w-3xl text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">Grounded answers from voice.<br /><span className="text-primary">No generation. No guesswork.</span></h1><p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">A deterministic, evidence-first pipeline with dense plus BM25 retrieval, RRF fusion, extractive answer selection, and visible stage-level latency. {corpusStatus.data?.mode === "external_gateway" ? `${corpusStatus.data.reachable ? `${corpusStatus.data.pointsCount.toLocaleString()} indexed passages · ${corpusStatus.data.indexVersion}` : "The configured full-corpus gateway is unreachable."}` : "The 7-record compact validation corpus is active; a full-corpus gateway can be connected without changing this interface."}</p>{corpusStatus.data?.reachable && corpusStatus.data?.mode === "external_gateway" && <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Hindi {corpusStatus.data.languageCounts?.hi?.toLocaleString() ?? "—"} · English {corpusStatus.data.languageCounts?.en?.toLocaleString() ?? "—"} · Marathi {corpusStatus.data.languageCounts?.mr?.toLocaleString() ?? "—"}</p>}</div><Button onClick={() => benchmark.mutate()} disabled={busy} variant="outline" className="h-10 border-primary/30 bg-primary/5 px-4 text-xs text-primary hover:bg-primary/15 hover:text-primary"><Activity size={15} />{benchmark.isPending ? "Running benchmark…" : "Run 24-query cold benchmark"}</Button></section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(330px,.85fr)]">
         <div className="space-y-5">
           <div className="rounded-2xl border border-border bg-card/75 p-5 shadow-2xl shadow-black/10 sm:p-6">
             <div className="mb-5 flex items-center justify-between"><div><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary">01 · Input</p><h2 className="mt-1 text-lg font-bold">Ask with voice or text</h2></div><div className="flex items-center gap-2 text-xs text-muted-foreground"><Radio size={14} className={recording ? "animate-pulse text-destructive" : "text-primary"} />{recording ? "Listening…" : "Sarvam → Whisper fallback"}</div></div>
-            <div className="rounded-xl border border-border bg-background/60 p-3"><div className="flex flex-col gap-3 sm:flex-row"><Input value={query} onChange={event => setQuery(event.target.value)} onKeyDown={event => { if (event.key === "Enter") submitText(); }} placeholder="Try: What is a corporation?" className="h-12 border-0 bg-transparent px-2 text-base shadow-none focus-visible:ring-0" /><Button onClick={submitText} disabled={!query.trim() || busy} className="h-12 bg-primary px-5 text-primary-foreground hover:bg-primary/90"><Send size={16} /> Ask</Button></div><div className="mt-2 flex flex-wrap gap-2">{demoPrompts.map(prompt => <button key={prompt} onClick={() => setQuery(prompt)} className="rounded-md border border-border bg-card px-2.5 py-1.5 text-left font-mono text-[10px] text-muted-foreground transition hover:border-primary/40 hover:text-primary">{prompt}</button>)}</div></div>
+            <div className="rounded-xl border border-border bg-background/60 p-3"><div className="mb-3 flex flex-wrap items-center gap-2"><span className="mr-1 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground"><Languages size={13} /> Retrieval corpus</span>{([['auto', 'Auto'], ['hi', 'हिन्दी'], ['en', 'English'], ['mr', 'मराठी']] as const).map(([value, label]) => <button key={value} type="button" onClick={() => setRetrievalLanguage(value)} className={`rounded-md border px-2.5 py-1.5 font-mono text-[10px] transition ${retrievalLanguage === value ? "border-primary/50 bg-primary/15 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/35 hover:text-primary"}`}>{label}</button>)}</div><div className="flex flex-col gap-3 sm:flex-row"><Input value={query} onChange={event => setQuery(event.target.value)} onKeyDown={event => { if (event.key === "Enter") submitText(); }} placeholder="Try: What is a corporation?" className="h-12 border-0 bg-transparent px-2 text-base shadow-none focus-visible:ring-0" /><Button onClick={submitText} disabled={!query.trim() || busy} className="h-12 bg-primary px-5 text-primary-foreground hover:bg-primary/90"><Send size={16} /> Ask</Button></div><div className="mt-2 flex flex-wrap gap-2">{demoPrompts.map(prompt => <button key={prompt} onClick={() => setQuery(prompt)} className="rounded-md border border-border bg-card px-2.5 py-1.5 text-left font-mono text-[10px] text-muted-foreground transition hover:border-primary/40 hover:text-primary">{prompt}</button>)}</div></div>
             <div className="mt-5 flex items-center gap-4 rounded-xl border border-primary/15 bg-primary/[0.04] px-4 py-3"><Button type="button" onClick={recording ? endRecording : beginRecording} disabled={busy && !recording} className={`h-11 w-11 shrink-0 rounded-full p-0 ${recording ? "bg-destructive text-destructive-foreground hover:bg-destructive/85" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}>{recording ? <Square size={16} fill="currentColor" /> : <Mic size={18} />}</Button><div className="min-w-0 flex-1"><p className="text-sm font-semibold">{recording ? "Recording your question" : "Hold a clean, short question"}</p><p className="mt-0.5 text-xs text-muted-foreground">Primary STT uses Sarvam. The system automatically routes to Whisper if the primary provider is unavailable.</p></div><AudioPulse recording={recording} /></div>
             {error && <div className="mt-4 flex gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive-foreground"><AlertTriangle size={16} className="shrink-0" />{error}</div>}
           </div>

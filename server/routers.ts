@@ -4,7 +4,7 @@ import { getRecentRagQueries, insertRagQuery } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { benchmarkQueries, clearSemanticCache, runDeterministicRag, summarizeLatency } from "./rag/pipeline";
+import { benchmarkQueries, clearSemanticCache, summarizeLatency } from "./rag/pipeline";
 import { getGatewayIndexStatus, getRetrievalGatewayConfig } from "./rag/retrievalGateway";
 import { runRagQuery } from "./rag/service";
 import { transcribeWithFallback } from "./rag/transcription";
@@ -61,9 +61,9 @@ export const appRouter = router({
   }),
   rag: router({
     query: publicProcedure
-      .input(z.object({ query: z.string().trim().min(2).max(600) }))
+      .input(z.object({ query: z.string().trim().min(2).max(600), language: z.enum(["auto", "hi", "en", "mr"]).default("auto") }))
       .mutation(async ({ input }) => {
-        const outcome = await runRagQuery(input.query);
+        const outcome = await runRagQuery(input.query, { language: input.language });
         queueOutcomePersistence(outcome);
         return outcome;
       }),
@@ -72,11 +72,11 @@ export const appRouter = router({
         audioBase64: z.string().min(16).max(11_200_000),
         mimeType: z.enum(["audio/webm", "audio/mp3", "audio/mpeg", "audio/wav", "audio/ogg", "audio/m4a", "audio/mp4"]),
         fileName: z.string().min(1).max(120),
-        language: z.string().max(12).optional(),
+        language: z.enum(["auto", "hi", "en", "mr"]).default("auto"),
       }))
       .mutation(async ({ input }) => {
         const transcription = await transcribeWithFallback(input);
-        const outcome = await runRagQuery(transcription.transcript);
+        const outcome = await runRagQuery(transcription.transcript, { language: input.language });
         outcome.transcript = transcription.transcript;
         outcome.latency.transcriptionMs = transcription.latencyMs;
         outcome.latency.totalMs = Number((outcome.latency.retrievalToAnswerMs + transcription.latencyMs).toFixed(3));
@@ -145,7 +145,7 @@ export const appRouter = router({
       const outcomes: RagOutcome[] = [];
       for (const query of benchmarkQueries()) {
         clearSemanticCache();
-        const outcome = runDeterministicRag(query);
+        const outcome = await runRagQuery(query);
         await persistOutcome(outcome, undefined, undefined, "benchmark");
         outcomes.push(outcome);
       }

@@ -36,3 +36,9 @@
 - [x] Validate `intfloat/multilingual-e5-small` without query or passage prefixes against the restored vectors.
 - [x] Configure the gateway for the recovered non-generative multilingual E5 encoder and validate factual Hindi retrieval.
 - [x] Benchmark the restored 149,456-point collection with the matched encoder.
+- [x] Inspect the shared Drive folder and identify verified Hindi, English, and Marathi corpus assets.
+- [x] Adapt the deterministic ingestion and retrieval pipeline for Hindi, English, and Marathi with source-language metadata.
+- [x] Build and validate the largest reproducible multilingual Qdrant index supported by the available environment.
+- [x] Integrate multilingual corpus state, language-aware grounding, and real index metadata into the app.
+- [x] Benchmark factual and unsupported queries in each language with measured latency percentiles.
+- [x] Produce an audited three-language RAG status report, including any genuine persistent-hosting blocker.

@@ -12,11 +12,11 @@ from pydantic import BaseModel, Field
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://qdrant:6333").rstrip("/")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 GATEWAY_TOKEN = os.environ.get("GATEWAY_TOKEN", "")
-COLLECTION = os.environ.get("QDRANT_COLLECTION", "msmarco_xi_hi_v1")
-DENSE_MODEL = os.environ.get("DENSE_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+COLLECTION = os.environ.get("QDRANT_COLLECTION", "msmarco_xi_hi_en_mr_v1")
+DENSE_MODEL = os.environ.get("DENSE_MODEL", "intfloat/multilingual-e5-small")
 SPARSE_MODEL = os.environ.get("SPARSE_MODEL", "Qdrant/bm25")
-EMBEDDING_BACKEND = os.environ.get("EMBEDDING_BACKEND", "fastembed")
-QUERY_PREFIX = os.environ.get("QUERY_PREFIX", "query: ")
+EMBEDDING_BACKEND = os.environ.get("EMBEDDING_BACKEND", "sentence-transformers")
+QUERY_PREFIX = os.environ.get("QUERY_PREFIX", "")
 QDRANT_DENSE_VECTOR_NAME = os.environ.get("QDRANT_DENSE_VECTOR_NAME", "dense")
 QDRANT_ENABLE_SPARSE = os.environ.get("QDRANT_ENABLE_SPARSE", "true").lower() == "true"
 PAYLOAD_TEXT_FIELD = os.environ.get("PAYLOAD_TEXT_FIELD", "content")
@@ -32,15 +32,16 @@ UNSAFE_PATTERNS = [
     re.compile(r"\b(?:suicide|self[- ]harm)\b", re.I),
 ]
 STOP_WORDS = {
-    "a", "an", "and", "are", "at", "be", "by", "does", "for", "from", "has", "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with",
+    "a", "an", "and", "are", "at", "be", "by", "does", "for", "from", "has", "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with", "my", "your", "name",
     "क्या", "है", "हैं", "था", "थी", "थे", "मेरा", "मेरी", "मेरे", "तुम्हारा", "तुम्हारी", "तुम्हारे", "आपका", "आपकी", "आपके", "नाम", "कौन", "कौनसा", "कौनसी", "कहाँ", "कब", "कैसे", "कितना", "कितने", "की", "का", "के", "को", "में", "और", "से", "पर", "यह", "वह", "उस", "इस", "एक", "मैं", "हम", "आप", "तुम", "भी",
+    "माझे", "माझा", "माझी", "तुझे", "तुझा", "तुझी", "तुमचे", "तुमचा", "तुमची", "नाव", "कोण", "काय", "आहे", "आहेत", "होता", "होती", "होते", "कुठे", "कधी", "कसे", "किती", "चा", "ची", "चे", "ला", "मध्ये", "आणि", "पण", "हे", "तो", "ती", "ते", "या", "त्या", "एक", "मी", "आम्ही", "तुम्ही", "आपण",
 }
 
 app = FastAPI(title="HH Goa Retrieval Gateway", version="1.0.0")
 if EMBEDDING_BACKEND == "sentence-transformers":
     from sentence_transformers import SentenceTransformer
     dense_model = SentenceTransformer(DENSE_MODEL)
-    sparse_model = None
+    sparse_model = SparseTextEmbedding(model_name=SPARSE_MODEL) if QDRANT_ENABLE_SPARSE else None
 else:
     dense_model = TextEmbedding(model_name=DENSE_MODEL)
     sparse_model = SparseTextEmbedding(model_name=SPARSE_MODEL) if QDRANT_ENABLE_SPARSE else None
@@ -94,10 +95,12 @@ def best_sentence(content: str, query: str) -> tuple[str, float]:
     return max(((sentence, score_sentence(sentence, query)) for sentence in sentences), key=lambda item: item[1])
 
 
-async def qdrant_query(vector: list[float], sparse: Any | None, limit: int) -> tuple[list[dict], float]:
+async def qdrant_query(vector: list[float], sparse: Any | None, limit: int, language: str) -> tuple[list[dict], float]:
     dense_query: dict[str, Any] = {"query": vector, "limit": max(20, limit * 8), "with_payload": True}
     if QDRANT_DENSE_VECTOR_NAME:
         dense_query["using"] = QDRANT_DENSE_VECTOR_NAME
+    if language in {"hi", "en", "mr"}:
+        dense_query["filter"] = {"must": [{"key": PAYLOAD_LANGUAGE_FIELD, "match": {"value": language}}]}
     if QDRANT_ENABLE_SPARSE and sparse is not None:
         payload: dict[str, Any] = {
             "prefetch": [
@@ -136,7 +139,16 @@ async def index_status(authorization: str | None = Header(default=None)):
     if response.status_code != 200:
         raise HTTPException(status_code=503, detail="Collection is unavailable")
     result = response.json()["result"]
-    return {"indexVersion": COLLECTION, "pointsCount": result.get("points_count", 0), "vectorsCount": result.get("vectors_count", 0), "status": result.get("status", "unknown")}
+    async with httpx.AsyncClient(timeout=3.0) as client:
+        language_counts: dict[str, int] = {}
+        for language in ("hi", "en", "mr"):
+            count = await client.post(
+                f"{QDRANT_URL}/collections/{COLLECTION}/points/count",
+                headers=qdrant_headers(),
+                json={"exact": False, "filter": {"must": [{"key": PAYLOAD_LANGUAGE_FIELD, "match": {"value": language}}]}},
+            )
+            language_counts[language] = count.json().get("result", {}).get("count", 0) if count.status_code == 200 else 0
+    return {"indexVersion": COLLECTION, "pointsCount": result.get("points_count", 0), "vectorsCount": result.get("vectors_count", 0), "status": result.get("status", "unknown"), "languageCounts": language_counts, "supportedLanguages": ["hi", "en", "mr"]}
 
 
 @app.post("/v1/retrieve")
@@ -156,7 +168,7 @@ async def retrieve(request: RetrievalRequest, authorization: str | None = Header
         sparse_vector = sparse_future.result() if sparse_future else None
     query_embedding_ms = ms(embedding_start)
 
-    points, hybrid_search_ms = await qdrant_query(dense_vector, sparse_vector, request.limit)
+    points, hybrid_search_ms = await qdrant_query(dense_vector, sparse_vector, request.limit, request.language)
     rerank_start = time.perf_counter()
     matches = []
     for point in points:

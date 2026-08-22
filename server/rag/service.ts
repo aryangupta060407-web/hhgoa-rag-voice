@@ -5,6 +5,7 @@ import type { RagOutcome, RetrievedSource, StageLatency } from "./types";
 type ServiceOptions = {
   gatewayConfig?: RetrievalGatewayConfig | null;
   fetchImpl?: typeof fetch;
+  language?: "auto" | "hi" | "en" | "mr";
 };
 
 const NO_CONTEXT_RESPONSE = "I couldn't find enough relevant information in the provided dataset to answer this question.";
@@ -42,7 +43,7 @@ function refusal(query: string, latency: StageLatency, reason: "unsafe_input" | 
   };
 }
 
-async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewayConfig, fetchImpl?: typeof fetch): Promise<RagOutcome> {
+async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewayConfig, language: "auto" | "hi" | "en" | "mr", fetchImpl?: typeof fetch): Promise<RagOutcome> {
   const started = performance.now();
   const query = normalizeQuery(rawQuery);
   const latency = emptyLatency();
@@ -62,7 +63,7 @@ async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewa
   latency.guardrailsMs = elapsed(guardrailStart);
 
   try {
-    const gateway = await retrieveFromGateway({ query, language: "auto", limit: 3, minGroundingScore: 0.16 }, config, fetchImpl);
+    const gateway = await retrieveFromGateway({ query, language, limit: 3, minGroundingScore: 0.16 }, config, fetchImpl);
     latency.embeddingMs = gateway.timings.queryEmbeddingMs;
     latency.denseRetrievalMs = gateway.timings.denseSearchMs;
     latency.lexicalRetrievalMs = gateway.timings.sparseSearchMs;
@@ -124,5 +125,5 @@ export async function runRagQuery(query: string, options: ServiceOptions = {}): 
   if (!config) {
     return { ...runDeterministicRag(query), corpusMode: "compact_local", indexVersion: "compact-validation-slice" };
   }
-  return runExternalGatewayQuery(query, config, options.fetchImpl);
+  return runExternalGatewayQuery(query, config, options.language ?? "auto", options.fetchImpl);
 }

@@ -58,6 +58,19 @@ The supplied backup was restored successfully for inspection: `msmarco_xi` has 1
 
 The supplied indexing source resolved the encoder configuration: `EMBEDDING_BACKEND=sentence-transformers`, `DENSE_MODEL=intfloat/multilingual-e5-small`, and an empty `QUERY_PREFIX`. Against the restored collection, this configuration returned correct Manhattan Project evidence for a factual Hindi query. A warm 20-request local benchmark measured HTTP P50/P70/P95/P99/P100 of **54.627 / 55.667 / 65.141 / 65.933 / 65.933 ms**.
 
+## Hindi, English, and Marathi corpus index
+
+The user-provided shared corpus folder includes `hi_corpus.jsonl`, `en_corpus.jsonl`, and `mr_corpus.jsonl`, each with `passage_id`, `text`, `source_lang`, `source_query_ids`, and `is_selected` fields. Build a deterministic three-language hybrid collection outside the web app:
+
+```bash
+QDRANT_URL=http://127.0.0.1:6333 \
+python3 scripts/build_multilingual_jsonl_qdrant_index.py \
+  --source-dir /data/processed \
+  --collection msmarco_xi_hi_en_mr_v1
+```
+
+The indexer streams JSONL in bounded batches, uses the matching non-generative multilingual E5 dense encoder, creates Qdrant BM25 sparse vectors, preserves language and source metadata, and never invokes a generative model.
+
 ## Benchmarking
 
 The UI retains its controlled compact-corpus benchmark. For the real gateway, measure P50/P70/P95/P99/P100 over a mixed workload, separately reporting STT, gateway retrieval, persistence, and complete HTTP timing. Do not claim full-corpus performance until the real deployed gateway is measured.

@@ -1,0 +1,1426 @@
+{
+  "benchmark": "local_multilingual_qdrant_gateway",
+  "rounds": 7,
+  "observations": 84,
+  "latencyScope": "HTTP retrieval gateway only; excludes STT, browser, and query-history persistence.",
+  "percentilesMs": {
+    "all": {
+      "n": 84,
+      "p50": 57.974,
+      "p70": 60.544,
+      "p95": 73.707,
+      "p99": 81.24,
+      "p100": 81.24,
+      "mean": 46.599
+    },
+    "en_factual": {
+      "n": 21,
+      "p50": 58.197,
+      "p70": 59.132,
+      "p95": 71.78,
+      "p99": 74.492,
+      "p100": 74.492,
+      "mean": 60.104
+    },
+    "factual_all_languages": {
+      "n": 63,
+      "p50": 59.337,
+      "p70": 62.151,
+      "p95": 74.492,
+      "p99": 81.24,
+      "p100": 81.24,
+      "mean": 61.649
+    },
+    "en_unsupported": {
+      "n": 7,
+      "p50": 1.246,
+      "p70": 1.468,
+      "p95": 2.644,
+      "p99": 2.644,
+      "p100": 2.644,
+      "mean": 1.484
+    },
+    "hi_factual": {
+      "n": 21,
+      "p50": 61.13,
+      "p70": 63.425,
+      "p95": 76.743,
+      "p99": 81.24,
+      "p100": 81.24,
+      "mean": 63.546
+    },
+    "hi_unsupported": {
+      "n": 7,
+      "p50": 1.274,
+      "p70": 1.297,
+      "p95": 2.4,
+      "p99": 2.4,
+      "p100": 2.4,
+      "mean": 1.412
+    },
+    "mr_factual": {
+      "n": 21,
+      "p50": 58.939,
+      "p70": 60.803,
+      "p95": 73.707,
+      "p99": 79.8,
+      "p100": 79.8,
+      "mean": 61.296
+    },
+    "mr_unsupported": {
+      "n": 7,
+      "p50": 1.288,
+      "p70": 1.354,
+      "p95": 2.503,
+      "p99": 2.503,
+      "p100": 2.503,
+      "mean": 1.455
+    }
+  },
+  "observationsDetail": [
+    {
+      "round": 1,
+      "language": "en",
+      "kind": "factual",
+      "query": "What was important to the success of the Manhattan Project?",
+      "httpMs": 67.753,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.597,
+        "denseSearchMs": 40.844,
+        "sparseSearchMs": 40.844,
+        "fusionMs": 0.223,
+        "totalMs": 65.664
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000000"
+    },
+    {
+      "round": 1,
+      "language": "en",
+      "kind": "factual",
+      "query": "Who led the Manhattan Project?",
+      "httpMs": 62.151,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.624,
+        "denseSearchMs": 35.351,
+        "sparseSearchMs": 35.351,
+        "fusionMs": 0.244,
+        "totalMs": 60.219
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 1,
+      "language": "en",
+      "kind": "factual",
+      "query": "What did the Manhattan Project develop?",
+      "httpMs": 57.967,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.953,
+        "denseSearchMs": 32.824,
+        "sparseSearchMs": 32.824,
+        "fusionMs": 0.246,
+        "totalMs": 56.023
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 1,
+      "language": "en",
+      "kind": "unsupported",
+      "query": "What is my name?",
+      "httpMs": 1.246,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 1,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना की सफलता के लिए क्या महत्वपूर्ण था?",
+      "httpMs": 67.939,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 33.298,
+        "denseSearchMs": 32.658,
+        "sparseSearchMs": 32.658,
+        "fusionMs": 0.221,
+        "totalMs": 66.177
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000000"
+    },
+    {
+      "round": 1,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना का नेतृत्व किसने किया?",
+      "httpMs": 62.525,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 27.274,
+        "denseSearchMs": 32.926,
+        "sparseSearchMs": 32.926,
+        "fusionMs": 0.233,
+        "totalMs": 60.433
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 1,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना ने क्या बनाया?",
+      "httpMs": 76.743,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 38.7,
+        "denseSearchMs": 35.885,
+        "sparseSearchMs": 35.885,
+        "fusionMs": 0.236,
+        "totalMs": 74.821
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000002"
+    },
+    {
+      "round": 1,
+      "language": "hi",
+      "kind": "unsupported",
+      "query": "मेरा नाम क्या है?",
+      "httpMs": 1.381,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 1,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाच्या यशासाठी काय महत्त्वाचे होते?",
+      "httpMs": 63.926,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 25.643,
+        "denseSearchMs": 36.494,
+        "sparseSearchMs": 36.494,
+        "fusionMs": 0.184,
+        "totalMs": 62.321
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000000"
+    },
+    {
+      "round": 1,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाचे नेतृत्व कोणी केले?",
+      "httpMs": 58.939,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.283,
+        "denseSearchMs": 32.555,
+        "sparseSearchMs": 32.555,
+        "fusionMs": 0.254,
+        "totalMs": 57.092
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000007"
+    },
+    {
+      "round": 1,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाने काय विकसित केले?",
+      "httpMs": 59.612,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.215,
+        "denseSearchMs": 35.23,
+        "sparseSearchMs": 35.23,
+        "fusionMs": 0.255,
+        "totalMs": 57.7
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000003"
+    },
+    {
+      "round": 1,
+      "language": "mr",
+      "kind": "unsupported",
+      "query": "माझे नाव काय आहे?",
+      "httpMs": 2.503,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 2,
+      "language": "en",
+      "kind": "factual",
+      "query": "What was important to the success of the Manhattan Project?",
+      "httpMs": 59.855,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.81,
+        "denseSearchMs": 32.707,
+        "sparseSearchMs": 32.707,
+        "fusionMs": 0.229,
+        "totalMs": 56.746
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000000"
+    },
+    {
+      "round": 2,
+      "language": "en",
+      "kind": "factual",
+      "query": "Who led the Manhattan Project?",
+      "httpMs": 56.694,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 21.193,
+        "denseSearchMs": 33.338,
+        "sparseSearchMs": 33.338,
+        "fusionMs": 0.227,
+        "totalMs": 54.758
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 2,
+      "language": "en",
+      "kind": "factual",
+      "query": "What did the Manhattan Project develop?",
+      "httpMs": 58.924,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.667,
+        "denseSearchMs": 33.114,
+        "sparseSearchMs": 33.114,
+        "fusionMs": 0.233,
+        "totalMs": 57.014
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 2,
+      "language": "en",
+      "kind": "unsupported",
+      "query": "What is my name?",
+      "httpMs": 1.468,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 2,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना की सफलता के लिए क्या महत्वपूर्ण था?",
+      "httpMs": 72.451,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 37.076,
+        "denseSearchMs": 33.553,
+        "sparseSearchMs": 33.553,
+        "fusionMs": 0.237,
+        "totalMs": 70.866
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000000"
+    },
+    {
+      "round": 2,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना का नेतृत्व किसने किया?",
+      "httpMs": 59.904,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.997,
+        "denseSearchMs": 32.798,
+        "sparseSearchMs": 32.798,
+        "fusionMs": 0.245,
+        "totalMs": 58.04
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 2,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना ने क्या बनाया?",
+      "httpMs": 61.726,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.087,
+        "denseSearchMs": 35.983,
+        "sparseSearchMs": 35.983,
+        "fusionMs": 0.337,
+        "totalMs": 59.407
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 2,
+      "language": "hi",
+      "kind": "unsupported",
+      "query": "मेरा नाम क्या है?",
+      "httpMs": 1.274,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 2,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाच्या यशासाठी काय महत्त्वाचे होते?",
+      "httpMs": 58.07,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.594,
+        "denseSearchMs": 32.648,
+        "sparseSearchMs": 32.648,
+        "fusionMs": 0.189,
+        "totalMs": 56.431
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000000"
+    },
+    {
+      "round": 2,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाचे नेतृत्व कोणी केले?",
+      "httpMs": 57.853,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.655,
+        "denseSearchMs": 32.099,
+        "sparseSearchMs": 32.099,
+        "fusionMs": 0.242,
+        "totalMs": 55.996
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000007"
+    },
+    {
+      "round": 2,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाने काय विकसित केले?",
+      "httpMs": 60.544,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 26.244,
+        "denseSearchMs": 32.032,
+        "sparseSearchMs": 32.032,
+        "fusionMs": 0.229,
+        "totalMs": 58.505
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000003"
+    },
+    {
+      "round": 2,
+      "language": "mr",
+      "kind": "unsupported",
+      "query": "माझे नाव काय आहे?",
+      "httpMs": 1.213,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 3,
+      "language": "en",
+      "kind": "factual",
+      "query": "What was important to the success of the Manhattan Project?",
+      "httpMs": 56.516,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.812,
+        "denseSearchMs": 32.031,
+        "sparseSearchMs": 32.031,
+        "fusionMs": 0.22,
+        "totalMs": 55.063
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000000"
+    },
+    {
+      "round": 3,
+      "language": "en",
+      "kind": "factual",
+      "query": "Who led the Manhattan Project?",
+      "httpMs": 68.026,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 32.698,
+        "denseSearchMs": 33.158,
+        "sparseSearchMs": 33.158,
+        "fusionMs": 0.217,
+        "totalMs": 66.073
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 3,
+      "language": "en",
+      "kind": "factual",
+      "query": "What did the Manhattan Project develop?",
+      "httpMs": 56.221,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 21.871,
+        "denseSearchMs": 32.421,
+        "sparseSearchMs": 32.421,
+        "fusionMs": 0.222,
+        "totalMs": 54.514
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 3,
+      "language": "en",
+      "kind": "unsupported",
+      "query": "What is my name?",
+      "httpMs": 1.512,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 3,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना की सफलता के लिए क्या महत्वपूर्ण था?",
+      "httpMs": 60.916,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 26.202,
+        "denseSearchMs": 32.92,
+        "sparseSearchMs": 32.92,
+        "fusionMs": 0.225,
+        "totalMs": 59.347
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000002"
+    },
+    {
+      "round": 3,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना का नेतृत्व किसने किया?",
+      "httpMs": 64.795,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 29.823,
+        "denseSearchMs": 32.749,
+        "sparseSearchMs": 32.749,
+        "fusionMs": 0.232,
+        "totalMs": 62.804
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 3,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना ने क्या बनाया?",
+      "httpMs": 59.337,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.402,
+        "denseSearchMs": 34.772,
+        "sparseSearchMs": 34.772,
+        "fusionMs": 0.231,
+        "totalMs": 57.405
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 3,
+      "language": "hi",
+      "kind": "unsupported",
+      "query": "मेरा नाम क्या है?",
+      "httpMs": 2.4,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 3,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाच्या यशासाठी काय महत्त्वाचे होते?",
+      "httpMs": 57.142,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.672,
+        "denseSearchMs": 32.555,
+        "sparseSearchMs": 32.555,
+        "fusionMs": 0.188,
+        "totalMs": 55.415
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000000"
+    },
+    {
+      "round": 3,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाचे नेतृत्व कोणी केले?",
+      "httpMs": 55.417,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 21.342,
+        "denseSearchMs": 31.929,
+        "sparseSearchMs": 31.929,
+        "fusionMs": 0.237,
+        "totalMs": 53.508
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000007"
+    },
+    {
+      "round": 3,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाने काय विकसित केले?",
+      "httpMs": 73.707,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 38.273,
+        "denseSearchMs": 33.305,
+        "sparseSearchMs": 33.305,
+        "fusionMs": 0.231,
+        "totalMs": 71.809
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000003"
+    },
+    {
+      "round": 3,
+      "language": "mr",
+      "kind": "unsupported",
+      "query": "माझे नाव काय आहे?",
+      "httpMs": 1.203,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 4,
+      "language": "en",
+      "kind": "factual",
+      "query": "What was important to the success of the Manhattan Project?",
+      "httpMs": 58.197,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.087,
+        "denseSearchMs": 32.055,
+        "sparseSearchMs": 32.055,
+        "fusionMs": 0.377,
+        "totalMs": 56.519
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000000"
+    },
+    {
+      "round": 4,
+      "language": "en",
+      "kind": "factual",
+      "query": "Who led the Manhattan Project?",
+      "httpMs": 55.454,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 20.742,
+        "denseSearchMs": 32.628,
+        "sparseSearchMs": 32.628,
+        "fusionMs": 0.227,
+        "totalMs": 53.597
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 4,
+      "language": "en",
+      "kind": "factual",
+      "query": "What did the Manhattan Project develop?",
+      "httpMs": 58.728,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.254,
+        "denseSearchMs": 32.382,
+        "sparseSearchMs": 32.382,
+        "fusionMs": 0.249,
+        "totalMs": 56.885
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 4,
+      "language": "en",
+      "kind": "unsupported",
+      "query": "What is my name?",
+      "httpMs": 2.644,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 4,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना की सफलता के लिए क्या महत्वपूर्ण था?",
+      "httpMs": 59.936,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.952,
+        "denseSearchMs": 33.272,
+        "sparseSearchMs": 33.272,
+        "fusionMs": 0.215,
+        "totalMs": 56.439
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000000"
+    },
+    {
+      "round": 4,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना का नेतृत्व किसने किया?",
+      "httpMs": 57.887,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.096,
+        "denseSearchMs": 32.829,
+        "sparseSearchMs": 32.829,
+        "fusionMs": 0.222,
+        "totalMs": 56.147
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 4,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना ने क्या बनाया?",
+      "httpMs": 63.425,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 28.659,
+        "denseSearchMs": 32.733,
+        "sparseSearchMs": 32.733,
+        "fusionMs": 0.219,
+        "totalMs": 61.611
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000002"
+    },
+    {
+      "round": 4,
+      "language": "hi",
+      "kind": "unsupported",
+      "query": "मेरा नाम क्या है?",
+      "httpMs": 1.09,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 4,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाच्या यशासाठी काय महत्त्वाचे होते?",
+      "httpMs": 79.8,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 45.217,
+        "denseSearchMs": 32.88,
+        "sparseSearchMs": 32.88,
+        "fusionMs": 0.194,
+        "totalMs": 78.291
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000000"
+    },
+    {
+      "round": 4,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाचे नेतृत्व कोणी केले?",
+      "httpMs": 55.758,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 21.239,
+        "denseSearchMs": 32.486,
+        "sparseSearchMs": 32.486,
+        "fusionMs": 0.242,
+        "totalMs": 53.967
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000007"
+    },
+    {
+      "round": 4,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाने काय विकसित केले?",
+      "httpMs": 58.424,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.334,
+        "denseSearchMs": 32.622,
+        "sparseSearchMs": 32.622,
+        "fusionMs": 0.247,
+        "totalMs": 55.203
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000003"
+    },
+    {
+      "round": 4,
+      "language": "mr",
+      "kind": "unsupported",
+      "query": "माझे नाव काय आहे?",
+      "httpMs": 1.288,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 5,
+      "language": "en",
+      "kind": "factual",
+      "query": "What was important to the success of the Manhattan Project?",
+      "httpMs": 59.132,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 25.273,
+        "denseSearchMs": 32.097,
+        "sparseSearchMs": 32.097,
+        "fusionMs": 0.221,
+        "totalMs": 57.591
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000000"
+    },
+    {
+      "round": 5,
+      "language": "en",
+      "kind": "factual",
+      "query": "Who led the Manhattan Project?",
+      "httpMs": 57.674,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.227,
+        "denseSearchMs": 31.468,
+        "sparseSearchMs": 31.468,
+        "fusionMs": 0.223,
+        "totalMs": 55.918
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 5,
+      "language": "en",
+      "kind": "factual",
+      "query": "What did the Manhattan Project develop?",
+      "httpMs": 55.265,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 20.493,
+        "denseSearchMs": 32.691,
+        "sparseSearchMs": 32.691,
+        "fusionMs": 0.227,
+        "totalMs": 53.411
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 5,
+      "language": "en",
+      "kind": "unsupported",
+      "query": "What is my name?",
+      "httpMs": 1.174,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 5,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना की सफलता के लिए क्या महत्वपूर्ण था?",
+      "httpMs": 59.222,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 25.307,
+        "denseSearchMs": 32.06,
+        "sparseSearchMs": 32.06,
+        "fusionMs": 0.213,
+        "totalMs": 57.58
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000002"
+    },
+    {
+      "round": 5,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना का नेतृत्व किसने किया?",
+      "httpMs": 69.961,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 34.491,
+        "denseSearchMs": 33.386,
+        "sparseSearchMs": 33.386,
+        "fusionMs": 0.242,
+        "totalMs": 68.119
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 5,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना ने क्या बनाया?",
+      "httpMs": 62.065,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 25.616,
+        "denseSearchMs": 34.38,
+        "sparseSearchMs": 34.38,
+        "fusionMs": 0.221,
+        "totalMs": 60.217
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 5,
+      "language": "hi",
+      "kind": "unsupported",
+      "query": "मेरा नाम क्या है?",
+      "httpMs": 1.297,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 5,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाच्या यशासाठी काय महत्त्वाचे होते?",
+      "httpMs": 64.867,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 31.262,
+        "denseSearchMs": 31.412,
+        "sparseSearchMs": 31.412,
+        "fusionMs": 0.178,
+        "totalMs": 62.852
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000000"
+    },
+    {
+      "round": 5,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाचे नेतृत्व कोणी केले?",
+      "httpMs": 62.613,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 29.108,
+        "denseSearchMs": 31.468,
+        "sparseSearchMs": 31.468,
+        "fusionMs": 0.228,
+        "totalMs": 60.804
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000007"
+    },
+    {
+      "round": 5,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाने काय विकसित केले?",
+      "httpMs": 55.663,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 21.992,
+        "denseSearchMs": 31.462,
+        "sparseSearchMs": 31.462,
+        "fusionMs": 0.235,
+        "totalMs": 53.689
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000003"
+    },
+    {
+      "round": 5,
+      "language": "mr",
+      "kind": "unsupported",
+      "query": "माझे नाव काय आहे?",
+      "httpMs": 1.354,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 6,
+      "language": "en",
+      "kind": "factual",
+      "query": "What was important to the success of the Manhattan Project?",
+      "httpMs": 59.059,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.957,
+        "denseSearchMs": 32.208,
+        "sparseSearchMs": 32.208,
+        "fusionMs": 0.23,
+        "totalMs": 57.395
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000000"
+    },
+    {
+      "round": 6,
+      "language": "en",
+      "kind": "factual",
+      "query": "Who led the Manhattan Project?",
+      "httpMs": 53.524,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 19.308,
+        "denseSearchMs": 32.243,
+        "sparseSearchMs": 32.243,
+        "fusionMs": 0.223,
+        "totalMs": 51.774
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 6,
+      "language": "en",
+      "kind": "factual",
+      "query": "What did the Manhattan Project develop?",
+      "httpMs": 71.78,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 36.976,
+        "denseSearchMs": 32.829,
+        "sparseSearchMs": 32.829,
+        "fusionMs": 0.227,
+        "totalMs": 70.032
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 6,
+      "language": "en",
+      "kind": "unsupported",
+      "query": "What is my name?",
+      "httpMs": 1.162,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 6,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना की सफलता के लिए क्या महत्वपूर्ण था?",
+      "httpMs": 61.13,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 24.412,
+        "denseSearchMs": 34.823,
+        "sparseSearchMs": 34.823,
+        "fusionMs": 0.221,
+        "totalMs": 59.456
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000002"
+    },
+    {
+      "round": 6,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना का नेतृत्व किसने किया?",
+      "httpMs": 60.269,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 25.962,
+        "denseSearchMs": 32.309,
+        "sparseSearchMs": 32.309,
+        "fusionMs": 0.222,
+        "totalMs": 58.493
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 6,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना ने क्या बनाया?",
+      "httpMs": 57.88,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.344,
+        "denseSearchMs": 33.213,
+        "sparseSearchMs": 33.213,
+        "fusionMs": 0.241,
+        "totalMs": 55.798
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000002"
+    },
+    {
+      "round": 6,
+      "language": "hi",
+      "kind": "unsupported",
+      "query": "मेरा नाम क्या है?",
+      "httpMs": 1.244,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 6,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाच्या यशासाठी काय महत्त्वाचे होते?",
+      "httpMs": 60.803,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 25.947,
+        "denseSearchMs": 32.509,
+        "sparseSearchMs": 32.509,
+        "fusionMs": 0.202,
+        "totalMs": 58.658
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000000"
+    },
+    {
+      "round": 6,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाचे नेतृत्व कोणी केले?",
+      "httpMs": 57.974,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.629,
+        "denseSearchMs": 32.264,
+        "sparseSearchMs": 32.264,
+        "fusionMs": 0.241,
+        "totalMs": 56.134
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000007"
+    },
+    {
+      "round": 6,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाने काय विकसित केले?",
+      "httpMs": 57.488,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.084,
+        "denseSearchMs": 33.31,
+        "sparseSearchMs": 33.31,
+        "fusionMs": 0.243,
+        "totalMs": 55.637
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000003"
+    },
+    {
+      "round": 6,
+      "language": "mr",
+      "kind": "unsupported",
+      "query": "माझे नाव काय आहे?",
+      "httpMs": 1.207,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 7,
+      "language": "en",
+      "kind": "factual",
+      "query": "What was important to the success of the Manhattan Project?",
+      "httpMs": 74.492,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 40.078,
+        "denseSearchMs": 32.652,
+        "sparseSearchMs": 32.652,
+        "fusionMs": 0.245,
+        "totalMs": 72.975
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000000"
+    },
+    {
+      "round": 7,
+      "language": "en",
+      "kind": "factual",
+      "query": "Who led the Manhattan Project?",
+      "httpMs": 57.207,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.918,
+        "denseSearchMs": 32.291,
+        "sparseSearchMs": 32.291,
+        "fusionMs": 0.224,
+        "totalMs": 55.433
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 7,
+      "language": "en",
+      "kind": "factual",
+      "query": "What did the Manhattan Project develop?",
+      "httpMs": 57.567,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.384,
+        "denseSearchMs": 31.713,
+        "sparseSearchMs": 31.713,
+        "fusionMs": 0.234,
+        "totalMs": 55.331
+      },
+      "matchCount": 3,
+      "firstDocumentId": "en_p_000007"
+    },
+    {
+      "round": 7,
+      "language": "en",
+      "kind": "unsupported",
+      "query": "What is my name?",
+      "httpMs": 1.181,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 7,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना की सफलता के लिए क्या महत्वपूर्ण था?",
+      "httpMs": 58.147,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.794,
+        "denseSearchMs": 32.558,
+        "sparseSearchMs": 32.558,
+        "fusionMs": 0.211,
+        "totalMs": 56.563
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000002"
+    },
+    {
+      "round": 7,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना का नेतृत्व किसने किया?",
+      "httpMs": 81.24,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 23.975,
+        "denseSearchMs": 55.091,
+        "sparseSearchMs": 55.091,
+        "fusionMs": 0.228,
+        "totalMs": 79.294
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 7,
+      "language": "hi",
+      "kind": "factual",
+      "query": "मैनहट्टन परियोजना ने क्या बनाया?",
+      "httpMs": 56.963,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 21.819,
+        "denseSearchMs": 33.072,
+        "sparseSearchMs": 33.072,
+        "fusionMs": 0.226,
+        "totalMs": 55.117
+      },
+      "matchCount": 3,
+      "firstDocumentId": "hi_p_000007"
+    },
+    {
+      "round": 7,
+      "language": "hi",
+      "kind": "unsupported",
+      "query": "मेरा नाम क्या है?",
+      "httpMs": 1.198,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    },
+    {
+      "round": 7,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाच्या यशासाठी काय महत्त्वाचे होते?",
+      "httpMs": 60.755,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 25.15,
+        "denseSearchMs": 32.542,
+        "sparseSearchMs": 32.542,
+        "fusionMs": 0.183,
+        "totalMs": 57.875
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000000"
+    },
+    {
+      "round": 7,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाचे नेतृत्व कोणी केले?",
+      "httpMs": 70.222,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 34.725,
+        "denseSearchMs": 33.305,
+        "sparseSearchMs": 33.305,
+        "fusionMs": 0.26,
+        "totalMs": 68.29
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000007"
+    },
+    {
+      "round": 7,
+      "language": "mr",
+      "kind": "factual",
+      "query": "मॅनहॅटन प्रकल्पाने काय विकसित केले?",
+      "httpMs": 57.642,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 22.503,
+        "denseSearchMs": 32.873,
+        "sparseSearchMs": 32.873,
+        "fusionMs": 0.27,
+        "totalMs": 55.646
+      },
+      "matchCount": 3,
+      "firstDocumentId": "mr_p_000003"
+    },
+    {
+      "round": 7,
+      "language": "mr",
+      "kind": "unsupported",
+      "query": "माझे नाव काय आहे?",
+      "httpMs": 1.414,
+      "gatewayTimings": {
+        "queryEmbeddingMs": 0.0,
+        "denseSearchMs": 0.0,
+        "sparseSearchMs": 0.0,
+        "fusionMs": 0.0,
+        "totalMs": 0.0
+      },
+      "matchCount": 0,
+      "firstDocumentId": null
+    }
+  ]
+}

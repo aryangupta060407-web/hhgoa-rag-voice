@@ -48,6 +48,8 @@ export type RetrievalGatewayIndexStatus = {
   pointsCount: number;
   vectorsCount: number;
   status: string;
+  languageCounts?: Partial<Record<"hi" | "en" | "mr", number>>;
+  supportedLanguages?: string[];
 };
 
 const DEFAULT_TIMEOUT_MS = 120;
@@ -174,11 +176,16 @@ export async function getGatewayIndexStatus(
     if (!response.ok) throw new Error(`Retrieval gateway status returned ${response.status}`);
     const body: unknown = await response.json();
     if (!isRecord(body)) throw new Error("Retrieval gateway index status is malformed");
+    const languageCounts = isRecord(body.languageCounts)
+      ? Object.fromEntries(Object.entries(body.languageCounts).filter((entry): entry is [string, number] => typeof entry[1] === "number" && Number.isFinite(entry[1]))) as Partial<Record<"hi" | "en" | "mr", number>>
+      : undefined;
     return {
       indexVersion: asText(body.indexVersion, "indexVersion"),
       pointsCount: asNumber(body.pointsCount, "pointsCount"),
       vectorsCount: asNumber(body.vectorsCount, "vectorsCount"),
       status: asText(body.status, "status"),
+      ...(languageCounts ? { languageCounts } : {}),
+      ...(Array.isArray(body.supportedLanguages) ? { supportedLanguages: body.supportedLanguages.filter((value): value is string => typeof value === "string") } : {}),
     };
   } finally {
     clearTimeout(timeout);

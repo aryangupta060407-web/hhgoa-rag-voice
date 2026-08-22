@@ -40,6 +40,18 @@ describe("scalable RAG service", () => {
     expect(fetchImpl).toHaveBeenCalledOnce();
   });
 
+  it("passes an explicit Marathi corpus preference to the configured gateway", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...gatewayPayload, matches: [{ ...gatewayPayload.matches[0], language: "mr" }] }), { status: 200 }));
+    await runRagQuery("मॅनहॅटन प्रकल्प म्हणजे काय?", {
+      gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      language: "mr",
+      fetchImpl,
+    });
+
+    const [, options] = fetchImpl.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(options.body)).language).toBe("mr");
+  });
+
   it("refuses an out-of-corpus question when the configured gateway returns no evidence", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...gatewayPayload, matches: [] }), { status: 200 }));
     const result = await runRagQuery("Who is Modiji?", {
@@ -67,6 +79,18 @@ describe("scalable RAG service", () => {
   it("refuses unsupported Hindi personal questions before contacting the configured gateway", async () => {
     const fetchImpl = vi.fn();
     const result = await runRagQuery("मेरा नाम क्या है?", {
+      gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      fetchImpl,
+    });
+
+    expect(result.answerMode).toBe("refusal");
+    expect(result.guardrails.reasons).toContain("insufficient_grounding");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it.each(["What is my name?", "माझे नाव काय आहे?"])("refuses unsupported personal question %s before contacting the configured gateway", async query => {
+    const fetchImpl = vi.fn();
+    const result = await runRagQuery(query, {
       gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
       fetchImpl,
     });
