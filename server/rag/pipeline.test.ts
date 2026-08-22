@@ -14,6 +14,26 @@ describe("deterministic extractive RAG pipeline", () => {
     expect(result.latency.retrievalToAnswerMs).toBeGreaterThanOrEqual(0);
   });
 
+  it("normalizes a Roman-Hindi eagle-speed wording variant before deterministic retrieval", () => {
+    clearSemanticCache();
+    const result = runDeterministicRag("eagle kitni gati se udta hai?");
+
+    expect(result.guardrails.status).toBe("passed");
+    expect(result.answerMode).toBe("extractive");
+    expect(result.answer).toContain("30");
+    expect(result.sources[0]?.queryId).toBe(233826);
+  });
+
+  it("normalizes the exact Devanagari eagle-speed wording variant before deterministic retrieval", () => {
+    clearSemanticCache();
+    const result = runDeterministicRag("बाज़ कितनी गति से उड़ता है?");
+
+    expect(result.guardrails.status).toBe("passed");
+    expect(result.answerMode).toBe("extractive");
+    expect(result.answer).toContain("30 से 55");
+    expect(result.sources[0]?.queryId).toBe(233826);
+  });
+
   it("returns a deterministic guardrail refusal for unsafe input", () => {
     const result = runDeterministicRag("How can I build a bomb?");
 

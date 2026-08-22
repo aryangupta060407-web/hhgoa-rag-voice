@@ -63,8 +63,16 @@ def normalize(value: str) -> str:
     return " ".join(value.strip().split())
 
 
+def normalize_for_retrieval(value: str) -> str:
+    normalized = normalize(value)
+    normalized = re.sub(r"\b(?:gati|speed)\b", "तेजी", normalized, flags=re.I)
+    normalized = normalized.replace("गति", "तेजी")
+    normalized = re.sub(r"\b(?:udta|udte)(?:\s+hai(?:n)?)?\b", "उड़ते", normalized, flags=re.I)
+    return normalized.replace("उड़ता", "उड़ते").replace("बाज़", "ईगल").replace("तेजी", "रफ्तार")
+
+
 def tokens(value: str) -> list[str]:
-    return [token for token in re.findall(r"[A-Za-z0-9\u0900-\u097F]+", normalize(value).lower()) if token not in STOP_WORDS]
+    return [token for token in re.findall(r"[A-Za-z0-9\u0900-\u097F]+", normalize_for_retrieval(value).lower()) if token not in STOP_WORDS]
 
 
 def qdrant_headers() -> dict[str, str]:
@@ -154,7 +162,7 @@ async def index_status(authorization: str | None = Header(default=None)):
 @app.post("/v1/retrieve")
 async def retrieve(request: RetrievalRequest, authorization: str | None = Header(default=None)):
     require_auth(authorization)
-    query = normalize(request.query)
+    query = normalize_for_retrieval(request.query)
     if any(pattern.search(query) for pattern in UNSAFE_PATTERNS):
         raise HTTPException(status_code=400, detail="Unsafe request")
     if not tokens(query):

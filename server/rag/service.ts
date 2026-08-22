@@ -1,5 +1,5 @@
 import { getRetrievalGatewayConfig, retrieveFromGateway, type RetrievalGatewayConfig } from "./retrievalGateway";
-import { hasGroundableTerms, isUnsafeQuery, normalizeQuery, runDeterministicRag, tokenize } from "./pipeline";
+import { hasGroundableTerms, isUnsafeQuery, normalizeForRetrieval, normalizeQuery, runDeterministicRag, tokenize } from "./pipeline";
 import type { RagOutcome, RetrievedSource, StageLatency } from "./types";
 
 type ServiceOptions = {
@@ -47,6 +47,7 @@ function refusal(query: string, latency: StageLatency, reason: "unsafe_input" | 
 async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewayConfig, language: "auto" | "hi" | "en" | "mr", fetchImpl?: typeof fetch): Promise<RagOutcome> {
   const started = performance.now();
   const query = normalizeQuery(rawQuery);
+  const retrievalQuery = normalizeForRetrieval(query);
   const latency = emptyLatency();
   const guardrailStart = performance.now();
   if (isUnsafeQuery(query)) {
@@ -55,7 +56,7 @@ async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewa
     latency.totalMs = latency.retrievalToAnswerMs;
     return refusal(query, latency, "unsafe_input", "I cannot help with that request.");
   }
-  if (!hasGroundableTerms(query)) {
+  if (!hasGroundableTerms(retrievalQuery)) {
     latency.guardrailsMs = elapsed(guardrailStart);
     latency.retrievalToAnswerMs = elapsed(started);
     latency.totalMs = latency.retrievalToAnswerMs;
@@ -64,14 +65,14 @@ async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewa
   latency.guardrailsMs = elapsed(guardrailStart);
 
   try {
-    const gateway = await retrieveFromGateway({ query, language, limit: 3, minGroundingScore: MIN_EXTRACTIVE_COVERAGE }, config, fetchImpl);
+    const gateway = await retrieveFromGateway({ query: retrievalQuery, language, limit: 3, minGroundingScore: MIN_EXTRACTIVE_COVERAGE }, config, fetchImpl);
     latency.embeddingMs = gateway.timings.queryEmbeddingMs;
     latency.denseRetrievalMs = gateway.timings.denseSearchMs;
     latency.lexicalRetrievalMs = gateway.timings.sparseSearchMs;
     latency.fusionMs = gateway.timings.fusionMs;
 
     const extractionStarted = performance.now();
-    const selected = gateway.matches.map(match => ({ match, extracted: bestGroundedSentence(match.content, query) }));
+    const selected = gateway.matches.map(match => ({ match, extracted: bestGroundedSentence(match.content, retrievalQuery) }));
     const best = selected.sort((left, right) => right.extracted.coverage - left.extracted.coverage || right.match.rrfScore - left.match.rrfScore)[0];
     latency.extractionMs = elapsed(extractionStarted);
 

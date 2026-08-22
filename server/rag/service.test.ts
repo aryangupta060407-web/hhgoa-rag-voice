@@ -52,6 +52,46 @@ describe("scalable RAG service", () => {
     expect(JSON.parse(String(options.body)).language).toBe("mr");
   });
 
+  it("normalizes a Roman-Hindi wording variant before requesting external evidence", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify(gatewayPayload), { status: 200 }));
+    const result = await runRagQuery("eagle kitni gati se udta hai?", {
+      gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      fetchImpl,
+    });
+
+    const [, options] = fetchImpl.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(options.body)).query).toContain("रफ्तार");
+    expect(result.guardrails.status).toBe("passed");
+    expect(result.answer).toContain("30 to 55 mph");
+  });
+
+  it("normalizes the exact Devanagari eagle-speed wording variant before requesting external evidence", async () => {
+    const hindiGatewayPayload = { ...gatewayPayload, matches: [{ ...gatewayPayload.matches[0], content: "ईगल 30 से 55 मील प्रति घंटे की रफ्तार से उड़ते हैं और 100 मील प्रति घंटे से अधिक की रफ्तार से गोता लगाते हैं।" }] };
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify(hindiGatewayPayload), { status: 200 }));
+    const result = await runRagQuery("बाज़ कितनी गति से उड़ता है?", {
+      gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      fetchImpl,
+    });
+
+    const [, options] = fetchImpl.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(options.body)).query).toContain("रफ्तार");
+    expect(result.guardrails.status).toBe("passed");
+    expect(result.answer).toContain("30 से 55");
+  });
+
+  it("refuses an unsupported normalized wording variant when the external gateway has no evidence", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...gatewayPayload, matches: [] }), { status: 200 }));
+    const result = await runRagQuery("अजगर कितनी गति से उड़ता है?", {
+      gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      fetchImpl,
+    });
+
+    const [, options] = fetchImpl.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(options.body)).query).toContain("रफ्तार");
+    expect(result.answerMode).toBe("refusal");
+    expect(result.guardrails.reasons).toContain("insufficient_grounding");
+  });
+
   it("refuses an out-of-corpus question when the configured gateway returns no evidence", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...gatewayPayload, matches: [] }), { status: 200 }));
     const result = await runRagQuery("Who is Modiji?", {

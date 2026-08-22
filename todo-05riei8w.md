@@ -48,3 +48,8 @@
 - [x] Document the exact local-preview and persistent-host connection procedure for the verified 8,311-passage Qdrant index.
 - [x] Restyle the web interface using the provided HH Goa website as the visual reference while preserving the deterministic RAG interaction model.
 - [x] Produce a deployment runbook for a Vercel-served frontend and EC2-hosted protected retrieval backend, including CORS, API routing, secrets, and validation.
+- [x] Support deterministic Hindi wording variants such as “बाज़ कितनी गति से उड़ता है?” without weakening unsupported-query refusals.
+- [x] Apply the same deterministic Hindi and Roman-Hindi wording normalization to the external Qdrant gateway path.
+- [x] Test the exact Devanagari wording variant and confirm unsupported-query refusal remains intact in local and gateway-backed modes.
+- [x] Verify the exact Devanagari eagle-speed wording variant through the external gateway contract.
+- [x] Verify an unsupported query still refuses through the external gateway contract after wording normalization.
