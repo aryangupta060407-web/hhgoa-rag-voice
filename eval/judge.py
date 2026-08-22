@@ -163,17 +163,23 @@ def _call_openai(system_prompt: str, user_content: str) -> JudgeVerdict:
         _openai_client = openai.OpenAI()
 
     t0 = time.perf_counter()
-    response = _openai_client.chat.completions.create(
-        model=JUDGE_MODEL_OPENAI,
-        max_completion_tokens=200,
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content},
-        ],
-    )
+    try:
+        response = _openai_client.chat.completions.create(
+            model=JUDGE_MODEL_OPENAI,
+            max_completion_tokens=200,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content},
+            ],
+        )
+    except Exception as exc:
+        raise JudgeNotConfigured(f"OpenAI judge request is unavailable: {exc}") from exc
     judge_ms = (time.perf_counter() - t0) * 1000
-    raw = (response.choices[0].message.content or "").strip()
+    choices = getattr(response, "choices", None)
+    if not choices or not getattr(choices[0], "message", None):
+        raise JudgeNotConfigured("OpenAI judge returned no usable completion; judge-based checks skipped.")
+    raw = (choices[0].message.content or "").strip()
     verdict, reason = _parse_verdict(raw)
     return JudgeVerdict(verdict=verdict, reason=reason, judge_ms=judge_ms, provider="openai", raw=raw)
 

@@ -1,0 +1,80 @@
+Target project: /home/ubuntu/hhgoa-rag-voice
+Embedder: app.embedder  |  Generator: app.generator
+Loading 25 answerable + 25 unanswerable examples from MSMARCO-XI...
+Building isolated mixed-language FAISS index from sampled candidate passages...
+Indexed 1166 chunks.
+Running retrieval + generation (1 workers requested)...
+[pipeline] 10/50 examples processed
+[pipeline] 20/50 examples processed
+[pipeline] 30/50 examples processed
+[pipeline] 40/50 examples processed
+[pipeline] 50/50 examples processed
+
+Running checks in parallel: retrieval, faithfulness, correctness, reliability, latency...
+======================================================================
+RAG Local Eval Loop -- results
+======================================================================
+Target project:     /home/ubuntu/hhgoa-rag-voice
+Generation backend: local (deterministic-extractive-no-llm)
+Dataset:            ai4bharat/MSMARCO-XI (hin, validation)
+Sample:             25 answerable + 25 unanswerable (seed=42)
+Index:              1166 chunks (EN+HI) from 50 examples' candidates
+top_k:              5
+
+RETRIEVAL  (reference-based -- vs. MSMARCO-XI is_selected labels)
+-----------------------------------------------------------------
+  25 answerable queries evaluated
+
+  cross-lingual (either language is a hit):
+  Recall@1                      0.560  [#############...........]  ideal 1.000  -44.0pp short
+  Recall@3                      0.800  [###################.....]  ideal 1.000  -20.0pp short
+  Recall@5                      0.840  [####################....]  ideal 1.000  -16.0pp short
+  MRR                           0.683  [################........]  ideal 1.000  -31.7pp short
+
+  same-language only:
+  Recall@1                      0.560  [#############...........]  ideal 1.000  -44.0pp short
+  Recall@3                      0.800  [###################.....]  ideal 1.000  -20.0pp short
+  Recall@5                      0.840  [####################....]  ideal 1.000  -16.0pp short
+  MRR                           0.683  [################........]  ideal 1.000  -31.7pp short
+
+FAITHFULNESS / HALLUCINATION  (reference-free -- LLM-as-judge)
+-----------------------------------------------------------------
+  SKIPPED: The configured external judge returned no usable completion.
+  No faithfulness, hallucination, or self-report precision metric is claimed.
+
+CORRECTNESS  (reference-based -- LLM-as-judge vs. MSMARCO-XI Eng_Answer)
+-----------------------------------------------------------------
+  SKIPPED: The configured external judge returned no usable completion.
+  No correctness metric is claimed.
+
+RELIABILITY / "LYING FACTOR"  (should-answer vs. did-answer)
+------------------------------------------------------------
+  False refusal rate            0.000  [........................]  ideal 0.000  PERFECT
+    (answerable per the dataset, but the system declined -- lost, not wrong)
+  False confidence rate         0.960  [#######################.]  ideal 0.000  +96.0pp over
+    (unanswerable per the dataset -- no candidate passage is relevant -- but the system answered anyway: fabrication)
+  Sample false-confidence cases:
+    - Q: what is that cluster of stars near taurus
+      extracted: In the year 1054 a massive star near the tip of the horn of Taurus exploded.
+    - Q: begher republic definition
+      extracted: 3 Burgher (Boer republics), an enfranchised citizen of the South African Republic or the Orange Free State.
+    - Q: the ant and the dove fable
+      extracted: Aesop's Fable: The Ant and the Dove.
+
+LATENCY
+-------
+  stage                 avg      p50      p95      p99   (ms)
+  embed               18.78    18.50    21.58    22.26
+  search               0.26     0.25     0.29     0.33
+  retrieval_total     18.86    18.58    21.78    22.73
+  generation           0.30     0.27     0.37     0.86
+
+  Retrieval  p95 21.78ms vs. 200ms budget  -> PASS
+  Generation p95 0.37ms vs. 1500.0ms target  -> PASS  (deterministic extractive selection)
+
+======================================================================
+
+Source metrics JSON: /home/ubuntu/hhgoa-rag-voice/results/20260822T175851Z.json
+Notes: This is a real 50-example run. Judge-backed sections are intentionally
+marked SKIPPED because no usable judge completion was returned; values were not
+substituted or fabricated.

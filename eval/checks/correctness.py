@@ -24,20 +24,20 @@ def run(results: list[ExampleResult], workers: int) -> dict:
     candidates = [r for r in results if r.error is None and r.example.is_answerable and r.answer_text]
 
     verdicts: list[tuple[ExampleResult, judge.JudgeVerdict]] = []
-    errors = 0
+    errors: list[str] = []
     with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
         futures = [pool.submit(_judge_one, r) for r in candidates]
         for future in as_completed(futures):
             try:
                 verdicts.append(future.result())
-            except judge.JudgeNotConfigured:
-                errors += 1
+            except judge.JudgeNotConfigured as exc:
+                errors.append(str(exc))
 
     if errors:
         return {
             "check": "correctness (reference-based, LLM-as-judge)",
             "num_evaluated": 0,
-            "error": "OPENAI_API_KEY not configured -- judge-based checks skipped.",
+            "error": f"Judge-based checks skipped: {errors[0]}",
         }
     if not verdicts:
         return {"check": "correctness (reference-based, LLM-as-judge)", "num_evaluated": 0}
