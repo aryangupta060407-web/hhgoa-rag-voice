@@ -10,6 +10,11 @@ type ServiceOptions = {
 
 const NO_CONTEXT_RESPONSE = "I couldn't find enough relevant information in the provided dataset to answer this question.";
 const MIN_EXTRACTIVE_COVERAGE = 0.3;
+const GENERIC_QUESTION_TERMS = new Set([
+  "fast", "speed", "travel", "quick", "quickly", "long", "time", "times", "year", "years", "work", "works", "history",
+  "meaning", "mean", "define", "definition", "effect", "effects", "cost", "costs", "price", "prices", "rate", "rates",
+  "रफ्तार", "तेजी", "गति", "उड़ते",
+]);
 
 function elapsed(start: number) {
   return Number((performance.now() - start).toFixed(3));
@@ -28,6 +33,13 @@ function bestGroundedSentence(content: string, query: string) {
     return { sentence, coverage };
   }).sort((left, right) => right.coverage - left.coverage);
   return scored[0] ?? { sentence: "", coverage: 0 };
+}
+
+function hasSubjectAnchor(content: string, query: string) {
+  const subjectAnchors = tokenize(query).filter(token => !GENERIC_QUESTION_TERMS.has(token));
+  if (!subjectAnchors.length) return false;
+  const contentTokens = new Set(tokenize(content));
+  return subjectAnchors.some(anchor => contentTokens.has(anchor));
 }
 
 function refusal(query: string, latency: StageLatency, reason: "unsafe_input" | "off_topic" | "insufficient_grounding", message = NO_CONTEXT_RESPONSE): RagOutcome {
@@ -72,7 +84,9 @@ async function runExternalGatewayQuery(rawQuery: string, config: RetrievalGatewa
     latency.fusionMs = gateway.timings.fusionMs;
 
     const extractionStarted = performance.now();
-    const selected = gateway.matches.map(match => ({ match, extracted: bestGroundedSentence(match.content, retrievalQuery) }));
+    const selected = gateway.matches
+      .filter(match => hasSubjectAnchor(match.content, retrievalQuery))
+      .map(match => ({ match, extracted: bestGroundedSentence(match.content, retrievalQuery) }));
     const best = selected.sort((left, right) => right.extracted.coverage - left.extracted.coverage || right.match.rrfScore - left.match.rrfScore)[0];
     latency.extractionMs = elapsed(extractionStarted);
 

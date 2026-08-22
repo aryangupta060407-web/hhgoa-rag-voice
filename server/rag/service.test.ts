@@ -40,6 +40,26 @@ describe("scalable RAG service", () => {
     expect(fetchImpl).toHaveBeenCalledOnce();
   });
 
+  it("refuses generic fast-word overlap when the evidence lacks the eagle subject anchor", async () => {
+    const unrelatedPayload = {
+      ...gatewayPayload,
+      matches: [{
+        ...gatewayPayload.matches[0],
+        content: "I recorded the stream and then went to watch it and the video playback is too fast and absolutely makes the video unwatchable.",
+      }],
+    };
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify(unrelatedPayload), { status: 200 }));
+
+    const result = await runRagQuery("How fast does an eagle travel?", {
+      gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      fetchImpl,
+    });
+
+    expect(result.answerMode).toBe("refusal");
+    expect(result.guardrails.reasons).toContain("insufficient_grounding");
+    expect(result.sources).toEqual([]);
+  });
+
   it("passes an explicit Marathi corpus preference to the configured gateway", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...gatewayPayload, matches: [{ ...gatewayPayload.matches[0], language: "mr" }] }), { status: 200 }));
     await runRagQuery("मॅनहॅटन प्रकल्प म्हणजे काय?", {

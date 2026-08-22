@@ -59,7 +59,22 @@
 - [x] Add visible in-flight transcript and answer-loading feedback to the query UI without changing the deterministic answer path.
 - [x] Run the 50-plus-query audit against the actual external Qdrant gateway and capture real dense, BM25, RRF, reranking, sufficiency, grounding, and outcome traces.
 - [x] Generate the final coverage report from the live gateway audit, including ten actual hybrid-retrieval failures with passages and scores.
-- [ ] Prepare the verified 8,311-passage Qdrant gateway and its environment configuration for EC2 deployment.
-- [ ] Prepare the frontend/API configuration and Vercel release instructions for the split deployment.
+- [x] Prepare the verified 8,311-passage Qdrant gateway and its environment configuration for EC2 deployment.
+- [x] Prepare the frontend/API configuration and Vercel release instructions for the split deployment.
 - [ ] Guide the authenticated AWS, Vercel, and DNS deployment steps, then validate the live end-to-end retrieval path.
+- [x] Deliver a researched free or low-cost hosting comparison and practical deployment recommendation for the Vercel frontend, Node API, Qdrant, and multilingual embedding gateway.
+- [x] Document the t3.micro free-tier constraint and safe split between lightweight application hosting and the full multilingual retrieval backend.
+- [ ] Provide the complete m7i-flex.large EC2 and Vercel deployment setup for the verified 8,311-passage multilingual RAG system.
+- [ ] Sanity-check the final packaged m7i-flex.large startup, snapshot-restore, and Vercel connection workflow before delivery.
+- [ ] Execute a local packaged-startup and Qdrant snapshot-restore validation before delivering the corrected deployment sequence.
+- [x] Create and validate a transferable Qdrant snapshot for the verified 8,311-passage multilingual collection.
 - [x] Package the complete portable project source, requirements, diagnostics, and deployment documentation into a safe downloadable ZIP without dependencies, local Qdrant data, or secrets.
+- [ ] Analyze the real multilingual coverage audit and identify the smallest deterministic tuning changes that improve answerable retrieval while preserving guardrails.
+- [ ] Implement and test deterministic multilingual retrieval, lexical normalization, and unsupported-query refusal improvements without an LLM.
+- [ ] Re-run the live 54-query Qdrant coverage benchmark, report measured improvement, and refresh the deployable package and collection snapshot.
+- [ ] Resolve the launched EC2 instance’s SSH timeout through a secure inbound-rule correction, then resume the backend installation.
+- [ ] Establish secure EC2 Instance Connect browser access if direct SSH remains unavailable from the current mobile network.
+- [ ] Correct the Vercel configuration conflict so the Vite frontend deploys without treating the private retrieval gateway as a Vercel service.
+- [ ] Repair the live EC2 voice-transcription path by configuring a valid server-side Sarvam credential and removing the unavailable Manus-only Whisper fallback from user-facing errors.
+- [ ] Diagnose and repair the live Node API connection or authentication failure to the private retrieval gateway.
+- [ ] Diagnose and prevent the live false-grounded eagle-speed answer that surfaced unrelated video-playback evidence.

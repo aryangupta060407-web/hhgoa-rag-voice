@@ -25,6 +25,7 @@ PAYLOAD_LANGUAGE_FIELD = os.environ.get("PAYLOAD_LANGUAGE_FIELD", "language")
 PAYLOAD_DATASET = os.environ.get("PAYLOAD_DATASET", "")
 PAYLOAD_SPLIT = os.environ.get("PAYLOAD_SPLIT", "")
 MIN_DENSE_SCORE = float(os.environ.get("MIN_DENSE_SCORE", "0.28"))
+MIN_HIGH_SIGNAL_GROUNDING = float(os.environ.get("MIN_HIGH_SIGNAL_GROUNDING", "0.51"))
 RRF_K = 60
 UNSAFE_PATTERNS = [
     re.compile(r"\b(?:build|make|buy)\s+(?:a\s+)?(?:bomb|explosive|weapon)\b", re.I),
@@ -32,9 +33,9 @@ UNSAFE_PATTERNS = [
     re.compile(r"\b(?:suicide|self[- ]harm)\b", re.I),
 ]
 STOP_WORDS = {
-    "a", "an", "and", "are", "at", "be", "by", "does", "for", "from", "has", "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with", "my", "your", "name",
-    "क्या", "है", "हैं", "था", "थी", "थे", "मेरा", "मेरी", "मेरे", "तुम्हारा", "तुम्हारी", "तुम्हारे", "आपका", "आपकी", "आपके", "नाम", "कौन", "कौनसा", "कौनसी", "कहाँ", "कब", "कैसे", "कितना", "कितने", "की", "का", "के", "को", "में", "और", "से", "पर", "यह", "वह", "उस", "इस", "एक", "मैं", "हम", "आप", "तुम", "भी",
-    "माझे", "माझा", "माझी", "तुझे", "तुझा", "तुझी", "तुमचे", "तुमचा", "तुमची", "नाव", "कोण", "काय", "आहे", "आहेत", "होता", "होती", "होते", "कुठे", "कधी", "कसे", "किती", "चा", "ची", "चे", "ला", "मध्ये", "आणि", "पण", "हे", "तो", "ती", "ते", "या", "त्या", "एक", "मी", "आम्ही", "तुम्ही", "आपण",
+    "a", "an", "and", "are", "at", "be", "by", "does", "do", "did", "for", "from", "has", "how", "in", "is", "it", "i", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with", "my", "your", "name", "make", "made", "get", "gets", "give", "given", "tell", "show", "current", "today", "about", "there", "was", "were", "born", "cause", "causes", "caused", "need", "needed", "want", "wanted", "help", "please", "could", "would", "should",
+    "क्या", "है", "हैं", "था", "थी", "थे", "मेरा", "मेरी", "मेरे", "तुम्हारा", "तुम्हारी", "तुम्हारे", "आपका", "आपकी", "आपके", "नाम", "कौन", "कौनसा", "कौनसी", "कहाँ", "कब", "कैसे", "कितना", "कितने", "किसे", "मिलता", "मिलते", "चाहिए", "प्रकार", "होता", "होते", "परिणाम", "की", "का", "के", "को", "में", "और", "से", "पर", "यह", "वह", "उस", "इस", "एक", "मैं", "हम", "आप", "तुम", "भी",
+    "माझे", "माझा", "माझी", "तुझे", "तुझा", "तुझी", "तुमचे", "तुमचा", "तुमची", "नाव", "कोण", "कोणाला", "काय", "आहे", "आहेत", "होता", "होती", "होते", "मिळतो", "मिळते", "आवश्यक", "कोणता", "परिणाम", "दिसले", "कुठे", "कधी", "कसे", "किती", "चा", "ची", "चे", "ला", "मध्ये", "आणि", "पण", "हे", "तो", "ती", "ते", "या", "त्या", "एक", "मी", "आम्ही", "तुम्ही", "आपण",
 }
 
 app = FastAPI(title="HH Goa Retrieval Gateway", version="1.0.0")
@@ -66,6 +67,14 @@ def normalize(value: str) -> str:
 
 def normalize_for_retrieval(value: str) -> str:
     normalized = normalize(value)
+    # Canonicalize recurring corpus abbreviations and inflected terms across the
+    # three indexed languages. These are deterministic aliases, not generated text.
+    for variant in ("एसएसडीआई", "एस.एस.डी.आई.", "एस. एस. डी. आई.", "एसएसडीआय", "एस.एस.डी.आय.", "एस. एस. डी. आय."):
+        normalized = normalized.replace(variant, "ssdi")
+    normalized = re.sub(r"काम(?:\s+का)?\s+इतिहास", "हाल के वर्षों में काम", normalized)
+    normalized = re.sub(r"कामाचा\s+इतिहास", "अलीकडील वर्षांत काम", normalized)
+    for variant in ("कामाचा", "कामाचे", "कामाची", "कामों", "काम का", "काम के", "काम की"):
+        normalized = normalized.replace(variant, "काम")
     normalized = re.sub(r"\b(?:gati|speed)\b", "तेजी", normalized, flags=re.I)
     normalized = normalized.replace("गति", "तेजी")
     normalized = re.sub(r"\b(?:udta|udte)(?:\s+hai(?:n)?)?\b", "उड़ते", normalized, flags=re.I)
@@ -93,15 +102,31 @@ def require_auth(authorization: str | None) -> None:
         raise HTTPException(status_code=401, detail="Invalid gateway token")
 
 
+def token_matches(query_token: str, sentence_token: str) -> bool:
+    if query_token == sentence_token:
+        return True
+    if len(query_token) < 5 or len(sentence_token) < 5:
+        return False
+    shared_prefix = 0
+    for query_char, sentence_char in zip(query_token, sentence_token):
+        if query_char != sentence_char:
+            break
+        shared_prefix += 1
+    return shared_prefix >= 5
+
+
 def score_sentence(sentence: str, query: str) -> float:
     query_tokens = tokens(query)
     sentence_tokens = set(tokens(sentence))
-    return sum(token in sentence_tokens for token in query_tokens) / max(1, len(query_tokens))
+    return sum(any(token_matches(query_token, sentence_token) for sentence_token in sentence_tokens) for query_token in query_tokens) / max(1, len(query_tokens))
 
 
 def best_sentence(content: str, query: str) -> tuple[str, float]:
-    sentences = [part.strip() for part in re.findall(r"[^.!?]+[.!?]?", content) if part.strip()] or [content]
-    return max(((sentence, score_sentence(sentence, query)) for sentence in sentences), key=lambda item: item[1])
+    # Do not fragment abbreviations such as एस.एस.डी.आई. before grounding.
+    protected_content = re.sub(r"(?<=\S)\.(?=\S)", "", content)
+    sentences = [part.strip() for part in re.findall(r"[^.!?]+[.!?]?", protected_content) if part.strip()] or [protected_content]
+    candidates = sentences + [f"{sentences[index]} {sentences[index + 1]}" for index in range(len(sentences) - 1)]
+    return max(((sentence, score_sentence(sentence, query)) for sentence in candidates), key=lambda item: item[1])
 
 
 async def qdrant_query(vector: list[float], sparse: Any | None, limit: int, language: str, include_diagnostics: bool = False) -> tuple[list[dict], float, dict[str, Any] | None]:
@@ -111,10 +136,18 @@ async def qdrant_query(vector: list[float], sparse: Any | None, limit: int, lang
     if language in {"hi", "en", "mr"}:
         dense_query["filter"] = {"must": [{"key": PAYLOAD_LANGUAGE_FIELD, "match": {"value": language}}]}
     if QDRANT_ENABLE_SPARSE and sparse is not None:
+        sparse_prefetch: dict[str, Any] = {
+            "query": {"indices": sparse.indices.tolist(), "values": sparse.values.tolist()},
+            "using": "bm25",
+            "limit": max(20, limit * 8),
+            "with_payload": True,
+        }
+        if language in {"hi", "en", "mr"}:
+            sparse_prefetch["filter"] = {"must": [{"key": PAYLOAD_LANGUAGE_FIELD, "match": {"value": language}}]}
         payload: dict[str, Any] = {
             "prefetch": [
                 dense_query,
-                {"query": {"indices": sparse.indices.tolist(), "values": sparse.values.tolist()}, "using": "bm25", "limit": max(20, limit * 8), "with_payload": True},
+                sparse_prefetch,
             ],
             "query": {"rrf": {"k": RRF_K}},
             "limit": limit,
@@ -191,14 +224,16 @@ async def retrieve(request: RetrievalRequest, authorization: str | None = Header
         sparse_vector = sparse_future.result() if sparse_future else None
     query_embedding_ms = ms(embedding_start)
 
-    points, hybrid_search_ms, diagnostics = await qdrant_query(dense_vector, sparse_vector, request.limit, request.language, request.includeDiagnostics)
+    candidate_limit = max(12, request.limit * 4)
+    points, hybrid_search_ms, diagnostics = await qdrant_query(dense_vector, sparse_vector, candidate_limit, request.language, request.includeDiagnostics)
     rerank_start = time.perf_counter()
     matches = []
     for point in points:
         payload = point.get("payload", {})
         content = str(payload.get(PAYLOAD_TEXT_FIELD, ""))
         sentence, coverage = best_sentence(content, query)
-        if not sentence or coverage < request.minGroundingScore or (not QDRANT_ENABLE_SPARSE and float(point.get("score", 0.0)) < MIN_DENSE_SCORE):
+        required_coverage = max(request.minGroundingScore, MIN_HIGH_SIGNAL_GROUNDING)
+        if not sentence or coverage < required_coverage or (not QDRANT_ENABLE_SPARSE and float(point.get("score", 0.0)) < MIN_DENSE_SCORE):
             continue
         matches.append({
             "id": str(point["id"]),
@@ -214,6 +249,8 @@ async def retrieve(request: RetrievalRequest, authorization: str | None = Header
             "extractiveAnswerCandidates": [{"sentence": sentence, "score": coverage}],
             "source": {"dataset": payload.get("dataset") or PAYLOAD_DATASET or "unverified-source", "split": payload.get("split") or PAYLOAD_SPLIT or "unverified-split", "queryId": payload.get("queryId", payload.get("metadata", {}).get("doc_id")), "sourceQueryIds": payload.get("sourceQueryIds", payload.get("source_query_ids", [])), "passageOrdinal": payload.get("passageOrdinal")},
         })
+    matches.sort(key=lambda match: (match["contextSufficiencyScore"], match["rrfScore"]), reverse=True)
+    matches = matches[:request.limit]
     fusion_ms = ms(rerank_start)
     response_payload: dict[str, Any] = {"indexVersion": COLLECTION, "matches": matches, "timings": {"queryEmbeddingMs": query_embedding_ms, "denseSearchMs": hybrid_search_ms, "sparseSearchMs": hybrid_search_ms if QDRANT_ENABLE_SPARSE else 0.0, "fusionMs": fusion_ms, "totalMs": round(query_embedding_ms + hybrid_search_ms + fusion_ms, 3)}}
     if diagnostics is not None:

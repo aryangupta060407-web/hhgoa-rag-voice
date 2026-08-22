@@ -53,6 +53,14 @@ export type RetrievalGatewayIndexStatus = {
 };
 
 const DEFAULT_TIMEOUT_MS = 120;
+const MIN_TIMEOUT_MS = 120;
+const MAX_TIMEOUT_MS = 1_000;
+
+export function resolveGatewayTimeoutMs(rawValue = ENV.corpusRetrievalTimeoutMs): number {
+  if (!/^\d+$/.test(rawValue.trim())) return DEFAULT_TIMEOUT_MS;
+  const parsed = Number.parseInt(rawValue, 10);
+  return parsed >= MIN_TIMEOUT_MS && parsed <= MAX_TIMEOUT_MS ? parsed : DEFAULT_TIMEOUT_MS;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -117,7 +125,7 @@ export function getRetrievalGatewayConfig(): RetrievalGatewayConfig | null {
   return {
     url: ENV.corpusRetrievalUrl,
     token: ENV.corpusRetrievalToken,
-    timeoutMs: DEFAULT_TIMEOUT_MS,
+    timeoutMs: resolveGatewayTimeoutMs(),
   };
 }
 

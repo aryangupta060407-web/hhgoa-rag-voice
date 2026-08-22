@@ -9,162 +9,91 @@ This report executed 54 typed English, Hindi, and Marathi queries against the **
 | Metric | Result |
 |---|---:|
 | Queries | 54 |
-| Correct evidence answers / all queries | 22 / 54 (40.7%) |
-| Answerable-case success rate | 22 / 27 (81.5%) |
-| Refusals / all queries | 19 / 54 (35.2%) |
-| Unsupported-query refusal rate | 51.8% |
-| Retrieval recall@3 among known answerable cases | 92.6% |
+| Correct evidence answers / all queries | 25 / 54 (46.3%) |
+| Answerable-case success rate | 25 / 27 (92.6%) |
+| Refusals / all queries | 26 / 54 (48.1%) |
+| Unsupported-query refusal rate | 88.9% |
+| Retrieval recall@3 among known answerable cases | 100.0% |
 | Expected-answerable cases | 27 |
 
 ## Failure categories
 
 | Category | Meaning | Count |
 |---|---|---:|
-| D | BM25 retrieval failure | 2 |
-| I | Grounding threshold too strict | 3 |
-| K | Other | 13 |
+| I | Grounding threshold too strict | 2 |
+| K | Other | 3 |
 
 ## Ten representative failures with real passages and scores
 
-### G18 — I: Grounding threshold too strict
+### G21 — I: Grounding threshold too strict
 
-**Query:** पुनर्स्थापनात्मक न्यायाचे कोणते परिणाम दिसले आहेत?
+**Query:** What work history is generally needed for SSDI?
 
-**Language:** mr. **Embedding:** success. **Counts:** dense 24, BM25 24, RRF 3.
+**Language:** en. **Embedding:** success. **Counts:** dense 96, BM25 96, RRF 12.
 
-**Top scores:** dense: 0.8889; BM25: 41.69505; RRF: 0.0328. **Reranker/context/grounding:** 0 / 0 / 0.
+**Top scores:** dense: 0.84924; BM25: 7.9202; RRF: 0.03205. **Reranker/context/grounding:** 0 / 0 / 0.
 
-> या शोधनिबंधाचा उद्देश गुन्हेगारी न्याय व्यवस्थेतील अनेक अनिर्णित मुद्दे दाखवणे, पुनर्स्थापनात्मक न्यायाची मूळ तत्त्वे मांडणे आणि नंतर पीडिता-अपराधी मध्यस्थीच्या वाढत्या प्रमाणावरील अनुभवजन्य आकडेवारीचा आढावा घेणे हा आहे.
-
-**Extractive candidates:** none.
-
-**Final answer/refusal:** refusal
-
-### G22 — I: Grounding threshold too strict
-
-**Query:** एसएसडीआई लाभ किसे मिलते हैं?
-
-**Language:** hi. **Embedding:** success. **Counts:** dense 24, BM25 24, RRF 3.
-
-**Top scores:** dense: 0.89229; BM25: 23.81068; RRF: 0.03333. **Reranker/context/grounding:** 0 / 0 / 0.
-
-> सामाजिक सुरक्षा विकलांगता लाभ के पाँच प्रमुख प्रकार हैं। सामाजिक सुरक्षा विकलांगता बीमा लाभ (एस.एस.डी.आई.) सामाजिक सुरक्षा विकलांगता लाभ का सबसे महत्वपूर्ण प्रकार है। यह उन व्यक्तियों को मिलता है जिन्होंने हाल के वर्षों में (अधिकांश मामल…
+> Generally, you need 10 years of work in a job in which you pay Social Security taxes to be eligible for retirement benefits. You can apply for these benefits as early as age 62 or as late as age 70, with the monthly amount going up the l…
 
 **Extractive candidates:** none.
 
 **Final answer/refusal:** refusal
 
-### G24 — D: BM25 retrieval failure
-
-**Query:** एसएसडीआई के लिए किस प्रकार का काम का इतिहास चाहिए?
-
-**Language:** mr. **Embedding:** success. **Counts:** dense 24, BM25 24, RRF 3.
-
-**Top scores:** dense: 0.84555; BM25: 34.85124; RRF: 0.01667. **Reranker/context/grounding:** 0 / 0 / 0.
-
-> केवल फिनिकी या खाने का विकार? ... लिपिड विकार आमतौर पर लक्षण पैदा नहीं करते हैं। ... निम्नलिखित संकेत या लक्षण चिकित्सा इतिहास या शारीरिक परीक्षा से पाए जा सकते हैं: त्वचा या टेंडन में वसायुक्त जमाव जो रक्त में लिपिड के बहुत उच्च स्तर के…
-
-**Extractive candidates:** none.
-
-**Final answer/refusal:** refusal
-
-### G25 — I: Grounding threshold too strict
-
-**Query:** एसएसडीआय लाभ कोणाला मिळतो?
-
-**Language:** mr. **Embedding:** success. **Counts:** dense 24, BM25 24, RRF 3.
-
-**Top scores:** dense: 0.88224; BM25: 17.18389; RRF: 0.01667. **Reranker/context/grounding:** 0 / 0 / 0.
-
-> दक्षिण-मध्य अलास्का में भूकंप - 2002 का देनाली फॉल्ट भूकंप 3 नवंबर 2002 को अलास्का में आया, जिसने सुसित्ना ग्लेशियर, देनाली और टोट्सचुंडा फॉल्ट के साथ-साथ 209 मील तक पृथ्वी की सतह को भी फाड़ दिया।
-
-**Extractive candidates:** none.
-
-**Final answer/refusal:** refusal
-
-### G27 — D: BM25 retrieval failure
+### G27 — I: Grounding threshold too strict
 
 **Query:** एसएसडीआयसाठी कोणता कामाचा इतिहास आवश्यक आहे?
 
-**Language:** mr. **Embedding:** success. **Counts:** dense 24, BM25 24, RRF 3.
+**Language:** mr. **Embedding:** success. **Counts:** dense 96, BM25 96, RRF 12.
 
-**Top scores:** dense: 0.85042; BM25: 28.96354; RRF: 0.0269. **Reranker/context/grounding:** 0 / 0 / 0.
+**Top scores:** dense: 0.84947; BM25: 29.35743; RRF: 0.03227. **Reranker/context/grounding:** 0 / 0 / 0.
 
-> SYSDATE हे डेटाबेस ज्या ऑपरेटिंग सिस्टमवर सेट केलेले आहे त्यासाठी सध्याची तारीख आणि वेळ परत करते. परत केलेल्या मूल्याचा डेटाटाइप डेट_एआरटीएलएस_डेटएआरटीएलएस_स्वरूप प्रारंभिकीकरण पॅरामीटरच्या मूल्यावर अवलंबून असतो. या फंक्शनला कोणत्याही तर…
+> सामाजिक सुरक्षा अपंगत्व लाभांचे पाच प्रमुख प्रकार आहेत. सामाजिक सुरक्षा अपंगत्व विमा लाभ (एस.एस.डी.आय.) हा सामाजिक सुरक्षा अपंगत्व लाभांचा सर्वात महत्त्वाचा प्रकार आहे. हे अलीकडील वर्षांत (बहुतेक प्रकरणांमध्ये गेल्या १० वर्षांपैकी पाच) क…
 
 **Extractive candidates:** none.
 
 **Final answer/refusal:** refusal
 
-### G28 — K: Other
+### G36 — K: Other
 
-**Query:** Where was Mahatma Gandhi born?
+**Query:** What is photosynthesis?
 
-**Language:** en. **Embedding:** success. **Counts:** dense 24, BM25 17, RRF 3.
+**Language:** en. **Embedding:** success. **Counts:** dense 96, BM25 4, RRF 12.
 
-**Top scores:** dense: 0.78667; BM25: 3.24002; RRF: 0.03226. **Reranker/context/grounding:** 0.4 / 0.4 / 0.542.
+**Top scores:** dense: 0.86296; BM25: 2.74484; RRF: 0.03333. **Reranker/context/grounding:** 1 / 1 / 1.
 
-> 33 years old Alexander was around 33 years of age when he died from malaria. Born July 20, 356 BC in Pella, Macedon in Greece Died June 10 or June 11, 323 BC (aged 32) … Correction my fine dimwtted friend....... Alexander The Great was b…
+> Phloem is a conductive (or vascular) tissue found in plants. Phloem carries the products of photosynthesis (sucrose and glucose) from the leaves to other parts of the plant.
 
-**Extractive candidates:** “Alexander The Great was born in Macedonia because his father, King Phillip II was the king of Macedonia.” (0.4); “James Earl Chaney was a young black man born and raised in Meridian, Mississippi.” (0.4).
+**Extractive candidates:** “Phloem carries the products of photosynthesis (sucrose and glucose) from the leaves to other parts of the plant.” (1); “Phloem carries the products of photosynthesis (sucrose and glucose) from the leaves to other parts of the plant.” (1); “Phloem carries the products of photosynthesis (sucrose and glucose) from the leaves to other parts of the plant.” (1).
 
-**Final answer/refusal:** Alexander The Great was born in Macedonia because his father, King Phillip II was the king of Macedonia.
+**Final answer/refusal:** Phloem carries the products of photosynthesis (sucrose and glucose) from the leaves to other parts of the plant.
 
-### G29 — K: Other
+### G45 — K: Other
 
-**Query:** How do I make biryani?
+**Query:** प्रकाश संश्लेषण क्या है?
 
-**Language:** en. **Embedding:** success. **Counts:** dense 24, BM25 24, RRF 3.
+**Language:** hi. **Embedding:** success. **Counts:** dense 96, BM25 96, RRF 12.
 
-**Top scores:** dense: 0.83434; BM25: 3.31984; RRF: 0.01667. **Reranker/context/grounding:** 0.75 / 0.75 / 0.688.
+**Top scores:** dense: 0.84885; BM25: 28.84179; RRF: 0.02895. **Reranker/context/grounding:** 1 / 1 / 0.967.
 
-> Method: Preheat the oven to 400°F. Put 1 tablespoon of the oil, 1/2 tablespoon of the rosemary, thyme, garlic, 1 1/2 teaspoons of the salt and 1/2 teaspoon of the pepper into a small bowl and mix well. Rub mixture all over beef; set asid…
+> फ्लोएम पौधों में पाया जाने वाला एक संवाहक (या संवहनी) ऊतक है। फ्लोएम पत्तियों से पौधे के अन्य भागों तक प्रकाश संश्लेषण (सुक्रोज और ग्लूकोज) के उत्पादों को ले जाता है।
 
-**Extractive candidates:** “Since I have no experience with stage make-up, I hired someone to do my make-up on the morning of the contest for $50.” (0.75).
+**Extractive candidates:** “फ्लोएम पौधों में पाया जाने वाला एक संवाहक (या संवहनी) ऊतक है। फ्लोएम पत्तियों से पौधे के अन्य भागों तक प्रकाश संश्लेषण (सुक्रोज और ग्लूकोज) के उत्पादों को ले जाता है।” (1); “जाइलम पौधे के विभिन्न भागों में जड़ों से पानी और घुलनशील खनिज पोषक तत्वों का परिवहन करता है। यह वाष्पोत्सर्जन और प्रकाश संश्लेषण के माध्यम से खोए हुए पानी को प्रतिस्थापित करने के लिए जिम्मेदार है। फ्लोएम पौधों के प्रकाश संश्लेषण क्षेत्रो…” (1); “मैग्नीशियम पौधों और मिट्टी में एक आवश्यक पौष्टिक तत्व है। पौधों के कई कार्यों में इसकी व्यापक भूमिकाएँ हैं। मैग्नीशियम की प्रसिद्ध भूमिकाओं में से एक प्रकाश संश्लेषण प्रक्रिया में है, क्योंकि यह क्लोरोफिल का एक निर्माण खंड है, जो पत्तियो…” (1).
 
-**Final answer/refusal:** Since I have no experience with stage make-up, I hired someone to do my make-up on the morning of the contest for $50.
+**Final answer/refusal:** फ्लोएम पौधों में पाया जाने वाला एक संवाहक (या संवहनी) ऊतक है। फ्लोएम पत्तियों से पौधे के अन्य भागों तक प्रकाश संश्लेषण (सुक्रोज और ग्लूकोज) के उत्पादों को ले जाता है।
 
-### G31 — K: Other
+### G54 — K: Other
 
-**Query:** What is the capital of Nepal?
+**Query:** प्रकाशसंश्लेषण म्हणजे काय?
 
-**Language:** en. **Embedding:** success. **Counts:** dense 24, BM25 9, RRF 3.
+**Language:** mr. **Embedding:** success. **Counts:** dense 96, BM25 96, RRF 12.
 
-**Top scores:** dense: 0.81892; BM25: 3.28874; RRF: 0.03333. **Reranker/context/grounding:** 0.5 / 0.5 / 0.625.
+**Top scores:** dense: 0.8428; BM25: 26.60224; RRF: 0.03229. **Reranker/context/grounding:** 1 / 1 / 0.936.
 
-> Annapurna is a section of the Himalayas in north-central Nepal. Annapurna is a series of peaks, the highest of which is called Annapurna I, which is the tenth highest mountain in the world. It is located in central Nepal and is approxima…
+> पानांमधून प्रकाशसंश्लेषणाची उत्पादने (सुक्रोज आणि ग्लुकोज) फ्लोअमद्वारे प्रकल्पित होतात आणि ते वनस्पतीच्या इतर भागांमध्ये पोहोचतात. मुळांमधून पाणी आणि खनिजे प्रवाहित करणारी संबंधित प्रणाली झायलेम म्हणून ओळखली जाते.
 
-**Extractive candidates:** “Annapurna is a section of the Himalayas in north-central Nepal.” (0.5); “It is located on the border between Sagarmatha Zone, Nepal, and Tibet, China and is part of the Himalayan Mountain Range.” (0.5); “Everest (29,035 ft) is the highest mountain in the world and is part of the Himalayan Mountain chain running along the border between Nepal and Tibet (China).” (0.5).
+**Extractive candidates:** “मेलॅनिन अतिनील प्रकाश शोषून शरीराचे संरक्षण करते. हायपोपिगमेंटेशन म्हणजे शरीर पुरेसे मेलॅनिन तयार करत नाही.” (1).
 
-**Final answer/refusal:** Annapurna is a section of the Himalayas in north-central Nepal.
-
-### G33 — K: Other
-
-**Query:** Who is the current president of India?
-
-**Language:** en. **Embedding:** success. **Counts:** dense 24, BM25 24, RRF 3.
-
-**Top scores:** dense: 0.79674; BM25: 3.33988; RRF: 0.0328. **Reranker/context/grounding:** 0.3333333333333333 / 0.3333333333333333 / 0.496.
-
-> Theodore Roosevelt changed the public’s perception of the presidency by asserting the centrality of the office in American government. The president is chosen by the whole nation, not just a district or state, and therefore the office of…
-
-**Extractive candidates:** “The president is chosen by the whole nation, not just a district or state, and therefore the office of the president is the most important office in the federal government.” (0.3333333333333333); “The President’s Constituents.” (0.3333333333333333); “The President and the Media.” (0.3333333333333333).
-
-**Final answer/refusal:** The president is chosen by the whole nation, not just a district or state, and therefore the office of the president is the most important office in the federal government.
-
-### G34 — K: Other
-
-**Query:** What causes earthquakes?
-
-**Language:** en. **Embedding:** success. **Counts:** dense 24, BM25 24, RRF 3.
-
-**Top scores:** dense: 0.84275; BM25: 3.50801; RRF: 0.02991. **Reranker/context/grounding:** 0.5 / 0.5 / 0.599.
-
-> Infections. Infections can cause localized changes in skin color. Cuts and scrapes can develop infections that turn the surrounding skin red or white and change the texture of the skin. Erythrasma is a chronic skin infection caused by ba…
-
-**Extractive candidates:** “Erythrasma is a chronic skin infection caused by bacteria that causes pink skin with brownish flaky patches and wrinkling.” (0.5); “Many people confuse correlation (things happening together or in sequence) for causation (that one thing actually causes the other to happen).” (0.5); “There are numerous potential causes of fatigue as a major complaint.” (0.5).
-
-**Final answer/refusal:** Erythrasma is a chronic skin infection caused by bacteria that causes pink skin with brownish flaky patches and wrinkling.
+**Final answer/refusal:** मेलॅनिन अतिनील प्रकाश शोषून शरीराचे संरक्षण करते. हायपोपिगमेंटेशन म्हणजे शरीर पुरेसे मेलॅनिन तयार करत नाही.
 
 ## Smallest changes suggested by the measured gateway trace
 

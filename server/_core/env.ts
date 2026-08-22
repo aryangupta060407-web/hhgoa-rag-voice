@@ -9,4 +9,5 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   corpusRetrievalUrl: process.env.CORPUS_RETRIEVAL_URL ?? "",
   corpusRetrievalToken: process.env.CORPUS_RETRIEVAL_TOKEN ?? "",
+  corpusRetrievalTimeoutMs: process.env.CORPUS_RETRIEVAL_TIMEOUT_MS ?? "",
 };

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { getGatewayIndexStatus, retrieveFromGateway } from "./retrievalGateway";
+import { getGatewayIndexStatus, resolveGatewayTimeoutMs, retrieveFromGateway } from "./retrievalGateway";
 
 const gatewayResponse = {
   indexVersion: "msmarco-xi-hi-v1",
@@ -18,6 +18,14 @@ const gatewayResponse = {
 };
 
 describe("retrieval gateway contract", () => {
+  it("accepts only a bounded server-side gateway timeout override", () => {
+    expect(resolveGatewayTimeoutMs("350")).toBe(350);
+    expect(resolveGatewayTimeoutMs("120")).toBe(120);
+    expect(resolveGatewayTimeoutMs("119")).toBe(120);
+    expect(resolveGatewayTimeoutMs("1001")).toBe(120);
+    expect(resolveGatewayTimeoutMs("not-a-number")).toBe(120);
+  });
+
   it("sends a server-side authenticated request and returns validated source matches", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify(gatewayResponse), { status: 200 }));
 
