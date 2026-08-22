@@ -84,4 +84,6 @@
 - [x] Improve and benchmark deterministic compact-fallback coverage for the Manus-published demo while retaining strict extractive refusals.
 - [x] Run and preserve a dedicated compact-fallback coverage audit with answerable and refusal metrics across English, Hindi, and Marathi.
 - [x] Validate representative new compact-fallback prompts against real source mappings and replace passage-as-query placeholders where verified mappings are available.
-- [ ] Add a source-verifiable Marathi compact audit plus unsupported/personal refusal metrics across all three languages, or document the missing Marathi query-mapping blocker.
+- [x] Add a source-verifiable Marathi compact audit plus unsupported/personal refusal metrics across all three languages, or document the missing Marathi query-mapping blocker.
+- [x] Refuse compact-demo named-entity questions when their entity is absent from selected evidence, including “Who is first president of India?”.
+- [x] Remove or truthfully relabel compact-local latency percentiles so they are not mistaken for live voice or full-index latency.

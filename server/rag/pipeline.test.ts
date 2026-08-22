@@ -80,6 +80,16 @@ describe("deterministic extractive RAG pipeline", () => {
     expect(result.sources).toEqual([]);
   });
 
+  it("refuses a named-entity question when only a generic political role overlaps the compact evidence", () => {
+    clearSemanticCache();
+    const result = runDeterministicRag("Who is first president of India?");
+
+    expect(result.guardrails.status).toBe("refused");
+    expect(result.guardrails.reasons).toContain("off_topic");
+    expect(result.answerMode).toBe("refusal");
+    expect(result.sources).toEqual([]);
+  });
+
   it("uses the semantic cache only for an identical normalized query", () => {
     clearSemanticCache();
     runDeterministicRag("What is a corporation?");

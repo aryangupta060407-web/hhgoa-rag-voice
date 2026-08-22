@@ -33,7 +33,7 @@ const STOP_WORDS = new Set([
   "माझे", "माझा", "माझी", "तुझे", "तुझा", "तुझी", "तुमचे", "तुमचा", "तुमची", "नाव", "कोण", "काय", "आहे", "आहेत", "होता", "होती", "होते", "कुठे", "कधी", "कसे", "किती", "चा", "ची", "चे", "ला", "मध्ये", "आणि", "पण", "हे", "तो", "ती", "ते", "या", "त्या", "एक", "मी", "आम्ही", "तुम्ही", "आपण",
 ]);
 const GENERIC_RETRIEVAL_TERMS = new Set([
-  "do", "does", "did", "fast", "speed", "travel", "quick", "quickly", "long", "time", "times", "year", "years", "work", "works", "history", "make", "made", "making", "cook", "cooking", "recipe", "recipes",
+  "do", "does", "did", "first", "last", "president", "prime", "minister", "leader", "governor", "king", "queen", "fast", "speed", "travel", "quick", "quickly", "long", "time", "times", "year", "years", "work", "works", "history", "make", "made", "making", "cook", "cooking", "recipe", "recipes",
   "meaning", "mean", "define", "definition", "effect", "effects", "cost", "costs", "price", "prices", "rate", "rates",
   "रफ्तार", "तेजी", "गति", "उड़ते", "यात्रा", "समय", "परिपक्व", "स्थित", "पैदा", "हुए", "जन्म",
 ]);
