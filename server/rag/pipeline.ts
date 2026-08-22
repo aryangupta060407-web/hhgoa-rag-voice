@@ -60,6 +60,8 @@ export function normalizeForRetrieval(input: string) {
     .replace(/\b(?:udta|udte)(?:\s+hai(?:n)?)?\b/gi, "उड़ते")
     .replace(/उड़ता/g, "उड़ते")
     .replace(/बाज़/g, "ईगल")
+    .replace(/साइड\s+इफेक्ट्स/g, "दुष्प्रभाव")
+    .replace(/खाने/g, "लेने")
     .replace(/तेजी/g, "रफ्तार");
 }
 

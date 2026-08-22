@@ -99,6 +99,29 @@ describe("scalable RAG service", () => {
     expect(result.answer).toContain("30 से 55");
   });
 
+  it("normalizes Hindi melatonin wording to the existing Hindi extractive evidence terms", async () => {
+    const hindiGatewayPayload = {
+      ...gatewayPayload,
+      matches: [{
+        ...gatewayPayload.matches[0],
+        language: "hi",
+        content: "मेलाटोनिन लेने पर दुष्प्रभाव हो सकते हैं।",
+      }],
+    };
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify(hindiGatewayPayload), { status: 200 }));
+    const result = await runRagQuery("मेलाटोनिन खाने के क्या साइड इफेक्ट्स हैं?", {
+      gatewayConfig: { url: "https://retrieval.example.test/v1/retrieve", token: "server-only-token" },
+      language: "hi",
+      fetchImpl,
+    });
+
+    const [, options] = fetchImpl.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(options.body)).query).toContain("दुष्प्रभाव");
+    expect(JSON.parse(String(options.body)).query).toContain("लेने");
+    expect(result.answerMode).toBe("extractive");
+    expect(result.answer).toContain("मेलाटोनिन");
+  });
+
   it("refuses an unsupported normalized wording variant when the external gateway has no evidence", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...gatewayPayload, matches: [] }), { status: 200 }));
     const result = await runRagQuery("अजगर कितनी गति से उड़ता है?", {

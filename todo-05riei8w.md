@@ -78,3 +78,4 @@
 - [ ] Repair the live EC2 voice-transcription path by configuring a valid server-side Sarvam credential and removing the unavailable Manus-only Whisper fallback from user-facing errors.
 - [ ] Diagnose and repair the live Node API connection or authentication failure to the private retrieval gateway.
 - [ ] Diagnose and prevent the live false-grounded eagle-speed answer that surfaced unrelated video-playback evidence.
+- [ ] Diagnose the live Hindi melatonin retrieval failure and verify whether it is an index-coverage, transliteration, or language-filter issue.
