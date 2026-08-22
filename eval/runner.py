@@ -59,6 +59,7 @@ def main():
     parser.add_argument("--top-k", type=int, default=5, help="results retrieved per query (default: 5)")
     parser.add_argument("--workers", type=int, default=6, help="parallel workers for retrieval+generation (default: 6; auto-clamped to 1 if the target's GENERATION_BACKEND is \"local\")")
     parser.add_argument("--judge-workers", type=int, default=8, help="parallel workers for judge calls, per check (default: 8)")
+    parser.add_argument("--skip-judge", action="store_true", help="skip optional external judge checks and retain real retrieval, reliability, and latency metrics")
     parser.add_argument("--seed", type=int, default=42, help="sampling seed (default: 42)")
     parser.add_argument("--language", default="hin", help="MSMARCO-XI language code (default: hin)")
     parser.add_argument("--split", default="validation", help="MSMARCO-XI split (default: validation)")
@@ -106,16 +107,29 @@ def main():
     print("\nRunning checks in parallel: retrieval, faithfulness, correctness, reliability, latency...")
     with ThreadPoolExecutor(max_workers=5) as pool:
         f_retrieval = pool.submit(retrieval.run, results, args.top_k)
-        f_faithfulness = pool.submit(faithfulness.run, results, args.judge_workers)
-        f_correctness = pool.submit(correctness.run, results, args.judge_workers)
         f_reliability = pool.submit(reliability.run, results)
         f_latency = pool.submit(latency.run, results)
 
         retrieval_report = f_retrieval.result()
-        faithfulness_report = f_faithfulness.result()
-        correctness_report = f_correctness.result()
         reliability_report = f_reliability.result()
         latency_report = f_latency.result()
+        if args.skip_judge:
+            skip_reason = "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+            faithfulness_report = {
+                "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+                "num_evaluated": 0,
+                "error": skip_reason,
+            }
+            correctness_report = {
+                "check": "correctness (reference-based, LLM-as-judge)",
+                "num_evaluated": 0,
+                "error": skip_reason,
+            }
+        else:
+            f_faithfulness = pool.submit(faithfulness.run, results, args.judge_workers)
+            f_correctness = pool.submit(correctness.run, results, args.judge_workers)
+            faithfulness_report = f_faithfulness.result()
+            correctness_report = f_correctness.result()
 
     full_report = {
         "meta": {

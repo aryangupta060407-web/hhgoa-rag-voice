@@ -1,0 +1,79 @@
+Target project: /home/ubuntu/hhgoa-rag-voice
+Embedder: app.embedder  |  Generator: app.generator
+Loading 25 answerable + 25 unanswerable examples from MSMARCO-XI...
+Building isolated mixed-language FAISS index from sampled candidate passages...
+Indexed 1166 chunks.
+Running retrieval + generation (1 workers requested)...
+[pipeline] 10/50 examples processed
+[pipeline] 20/50 examples processed
+[pipeline] 30/50 examples processed
+[pipeline] 40/50 examples processed
+[pipeline] 50/50 examples processed
+
+Running checks in parallel: retrieval, faithfulness, correctness, reliability, latency...
+======================================================================
+RAG Local Eval Loop -- results
+======================================================================
+Target project:     /home/ubuntu/hhgoa-rag-voice
+Generation backend: local (unknown)
+Dataset:            ai4bharat/MSMARCO-XI (hin, validation)
+Sample:             25 answerable + 25 unanswerable (seed=42)
+Index:              1166 chunks (EN+HI) from 50 examples' candidates
+top_k:              5
+
+RETRIEVAL  (reference-based -- vs. MSMARCO-XI is_selected labels)
+-----------------------------------------------------------------
+  25 answerable queries evaluated
+
+  cross-lingual (either language is a hit):
+  Recall@1                      0.560  [#############...........]  ideal 1.000  -44.0pp short
+  Recall@3                      0.800  [###################.....]  ideal 1.000  -20.0pp short
+  Recall@5                      0.840  [####################....]  ideal 1.000  -16.0pp short
+  MRR                           0.683  [################........]  ideal 1.000  -31.7pp short
+
+  same-language only:
+  Recall@1                      0.560  [#############...........]  ideal 1.000  -44.0pp short
+  Recall@3                      0.800  [###################.....]  ideal 1.000  -20.0pp short
+  Recall@5                      0.840  [####################....]  ideal 1.000  -16.0pp short
+  MRR                           0.683  [################........]  ideal 1.000  -31.7pp short
+
+FAITHFULNESS / HALLUCINATION  (reference-free -- LLM-as-judge)
+-----------------------------------------------------------------
+  SKIPPED: Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run.
+
+CORRECTNESS  (reference-based -- LLM-as-judge vs. MSMARCO-XI Eng_Answer)
+-----------------------------------------------------------------
+  SKIPPED: Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run.
+
+RELIABILITY / "LYING FACTOR"  (should-answer vs. did-answer)
+------------------------------------------------------------
+  False refusal rate            0.240  [######..................]  ideal 0.000  +24.0pp over
+    (answerable per the dataset, but the system declined -- lost, not wrong)
+  False confidence rate         0.320  [########................]  ideal 0.000  +32.0pp over
+    (unanswerable per the dataset -- no candidate passage is relevant -- but the system answered anyway)
+  Sample false-confidence cases:
+    - Q: what is that cluster of stars near taurus
+      extracted: Like bright jewels on the back of Taurus sit the Pleiades, a tiny cluster of brilliant bluish stars.
+    - Q: the ant and the dove fable
+      extracted: Aesop's Fable: The Ant and the Dove.
+    - Q: what the max units in total war warhammer
+      extracted: 6 out of 10, saying Total War: Warhammer brims with exciting ideas, awesome characters, and delightful units and faction mechanics.
+
+LATENCY
+-------
+  stage                 avg      p50      p95      p99   (ms)
+  embed               17.98    17.74    20.06    21.52
+  search               0.23     0.22     0.27     0.30
+  retrieval_total     18.03    17.80    20.04    22.45
+  generation           0.27     0.26     0.35     0.65
+
+  Retrieval  p95 20.04ms vs. 200ms budget  -> PASS
+  Generation p95 0.35ms vs. 1500.0ms target  -> PASS  (deterministic extractive selection)
+
+======================================================================
+
+Source metrics JSON: /home/ubuntu/hhgoa-rag-voice/results/20260822T181145Z.json
+Notes: This is a real 50-example run after deterministic subject-anchor
+tightening. It improved false confidence from 0.960 to 0.320 while increasing
+false refusal from 0.000 to 0.240. Judge-backed sections are deliberately
+skipped because the judge did not yield a usable completion; no score is made up.

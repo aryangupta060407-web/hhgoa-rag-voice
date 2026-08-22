@@ -89,3 +89,4 @@
 - [x] Remove or truthfully relabel compact-local latency percentiles so they are not mistaken for live voice or full-index latency.
 - [x] Rename the visible project identity and application metadata to संवाद (Samvad) without changing the RAG pipeline.
 - [x] Run the supplied local evaluation loop and produce an honest result artifact in the requested metrics format.
+- [x] Strengthen deterministic evaluator answer qualification against weak contextual overlap without using labels or a generative model.
