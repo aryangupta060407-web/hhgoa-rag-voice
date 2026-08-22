@@ -15,6 +15,14 @@ GATEWAY_TOKEN = os.environ.get("GATEWAY_TOKEN", "")
 COLLECTION = os.environ.get("QDRANT_COLLECTION", "msmarco_xi_hi_v1")
 DENSE_MODEL = os.environ.get("DENSE_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 SPARSE_MODEL = os.environ.get("SPARSE_MODEL", "Qdrant/bm25")
+QDRANT_DENSE_VECTOR_NAME = os.environ.get("QDRANT_DENSE_VECTOR_NAME", "dense")
+QDRANT_ENABLE_SPARSE = os.environ.get("QDRANT_ENABLE_SPARSE", "true").lower() == "true"
+PAYLOAD_TEXT_FIELD = os.environ.get("PAYLOAD_TEXT_FIELD", "content")
+PAYLOAD_DOCUMENT_ID_FIELD = os.environ.get("PAYLOAD_DOCUMENT_ID_FIELD", "queryId")
+PAYLOAD_LANGUAGE_FIELD = os.environ.get("PAYLOAD_LANGUAGE_FIELD", "language")
+PAYLOAD_DATASET = os.environ.get("PAYLOAD_DATASET", "")
+PAYLOAD_SPLIT = os.environ.get("PAYLOAD_SPLIT", "")
+MIN_DENSE_SCORE = float(os.environ.get("MIN_DENSE_SCORE", "0.28"))
 RRF_K = 60
 UNSAFE_PATTERNS = [
     re.compile(r"\b(?:build|make|buy)\s+(?:a\s+)?(?:bomb|explosive|weapon)\b", re.I),
@@ -73,23 +81,29 @@ def best_sentence(content: str, query: str) -> tuple[str, float]:
     return max(((sentence, score_sentence(sentence, query)) for sentence in sentences), key=lambda item: item[1])
 
 
-async def qdrant_query(vector: list[float], sparse: Any, limit: int) -> tuple[list[dict], list[dict], float, float]:
-    payload = {
-        "prefetch": [
-            {"query": vector, "using": "dense", "limit": max(20, limit * 8), "with_payload": True},
-            {"query": {"indices": sparse.indices.tolist(), "values": sparse.values.tolist()}, "using": "bm25", "limit": max(20, limit * 8), "with_payload": True},
-        ],
-        "query": {"rrf": {"k": RRF_K}},
-        "limit": limit,
-        "with_payload": True,
-    }
+async def qdrant_query(vector: list[float], sparse: Any | None, limit: int) -> tuple[list[dict], float]:
+    dense_query: dict[str, Any] = {"query": vector, "limit": max(20, limit * 8), "with_payload": True}
+    if QDRANT_DENSE_VECTOR_NAME:
+        dense_query["using"] = QDRANT_DENSE_VECTOR_NAME
+    if QDRANT_ENABLE_SPARSE and sparse is not None:
+        payload: dict[str, Any] = {
+            "prefetch": [
+                dense_query,
+                {"query": {"indices": sparse.indices.tolist(), "values": sparse.values.tolist()}, "using": "bm25", "limit": max(20, limit * 8), "with_payload": True},
+            ],
+            "query": {"rrf": {"k": RRF_K}},
+            "limit": limit,
+            "with_payload": True,
+        }
+    else:
+        payload = {**dense_query, "limit": limit}
     start = time.perf_counter()
     async with httpx.AsyncClient(timeout=4.0) as client:
         response = await client.post(f"{QDRANT_URL}/collections/{COLLECTION}/points/query", headers=qdrant_headers(), json=payload)
     elapsed = ms(start)
     if response.status_code != 200:
         raise HTTPException(status_code=503, detail=f"Qdrant returned {response.status_code}: {response.text[:240]}")
-    return response.json()["result"]["points"], [], elapsed, 0.0
+    return response.json()["result"]["points"], elapsed
 
 
 @app.get("/healthz")
@@ -98,7 +112,7 @@ async def healthz():
         response = await client.get(f"{QDRANT_URL}/healthz", headers=qdrant_headers())
     if response.status_code != 200:
         raise HTTPException(status_code=503, detail="Qdrant is unavailable")
-    return {"status": "ok", "collection": COLLECTION, "denseModel": DENSE_MODEL, "sparseModel": SPARSE_MODEL}
+    return {"status": "ok", "collection": COLLECTION, "denseModel": DENSE_MODEL, "sparseModel": SPARSE_MODEL if QDRANT_ENABLE_SPARSE else None, "denseVectorName": QDRANT_DENSE_VECTOR_NAME or "unnamed"}
 
 
 @app.get("/v1/index-status")
@@ -122,31 +136,32 @@ async def retrieve(request: RetrievalRequest, authorization: str | None = Header
         return {"indexVersion": COLLECTION, "matches": [], "timings": {"queryEmbeddingMs": 0.0, "denseSearchMs": 0.0, "sparseSearchMs": 0.0, "fusionMs": 0.0, "totalMs": 0.0}}
 
     embedding_start = time.perf_counter()
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=2 if QDRANT_ENABLE_SPARSE else 1) as executor:
         dense_future = executor.submit(lambda: list(dense_model.embed([f"query: {query}"]))[0].tolist())
-        sparse_future = executor.submit(lambda: list(sparse_model.embed([query]))[0])
-        dense_vector, sparse_vector = dense_future.result(), sparse_future.result()
+        sparse_future = executor.submit(lambda: list(sparse_model.embed([query]))[0]) if QDRANT_ENABLE_SPARSE else None
+        dense_vector = dense_future.result()
+        sparse_vector = sparse_future.result() if sparse_future else None
     query_embedding_ms = ms(embedding_start)
 
-    points, _, hybrid_search_ms, _ = await qdrant_query(dense_vector, sparse_vector, request.limit)
+    points, hybrid_search_ms = await qdrant_query(dense_vector, sparse_vector, request.limit)
     rerank_start = time.perf_counter()
     matches = []
     for point in points:
         payload = point.get("payload", {})
-        content = payload.get("content", "")
+        content = str(payload.get(PAYLOAD_TEXT_FIELD, ""))
         sentence, coverage = best_sentence(content, query)
-        if not sentence or coverage < request.minGroundingScore:
+        if not sentence or coverage < request.minGroundingScore or (not QDRANT_ENABLE_SPARSE and float(point.get("score", 0.0)) < MIN_DENSE_SCORE):
             continue
         matches.append({
             "id": str(point["id"]),
-            "documentId": str(payload.get("queryId", "")),
-            "language": payload.get("language", "hi"),
+            "documentId": str(payload.get(PAYLOAD_DOCUMENT_ID_FIELD, payload.get("chunk_id", ""))),
+            "language": payload.get(PAYLOAD_LANGUAGE_FIELD, "hi"),
             "strategy": payload.get("strategy", "selected_passage"),
             "content": content,
             "denseScore": float(point.get("score", 0.0)),
             "sparseScore": 0.0,
             "rrfScore": float(point.get("score", 0.0)),
-            "source": {"dataset": payload.get("dataset", "ai4bharat/MSMARCO-XI"), "split": payload.get("split", "validation"), "queryId": payload.get("queryId"), "passageOrdinal": payload.get("passageOrdinal")},
+            "source": {"dataset": payload.get("dataset") or PAYLOAD_DATASET or "unverified-source", "split": payload.get("split") or PAYLOAD_SPLIT or "unverified-split", "queryId": payload.get("queryId", payload.get("metadata", {}).get("doc_id")), "passageOrdinal": payload.get("passageOrdinal")},
         })
     fusion_ms = ms(rerank_start)
-    return {"indexVersion": COLLECTION, "matches": matches, "timings": {"queryEmbeddingMs": query_embedding_ms, "denseSearchMs": hybrid_search_ms, "sparseSearchMs": hybrid_search_ms, "fusionMs": fusion_ms, "totalMs": round(query_embedding_ms + hybrid_search_ms + fusion_ms, 3)}}
+    return {"indexVersion": COLLECTION, "matches": matches, "timings": {"queryEmbeddingMs": query_embedding_ms, "denseSearchMs": hybrid_search_ms, "sparseSearchMs": hybrid_search_ms if QDRANT_ENABLE_SPARSE else 0.0, "fusionMs": fusion_ms, "totalMs": round(query_embedding_ms + hybrid_search_ms + fusion_ms, 3)}}

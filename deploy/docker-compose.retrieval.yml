@@ -19,6 +19,11 @@ services:
       GATEWAY_TOKEN: ${GATEWAY_TOKEN:?Set_a_long_random_gateway_token}
       DENSE_MODEL: ${DENSE_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
       SPARSE_MODEL: ${SPARSE_MODEL:-Qdrant/bm25}
+      QDRANT_DENSE_VECTOR_NAME: ${QDRANT_DENSE_VECTOR_NAME:-dense}
+      QDRANT_ENABLE_SPARSE: ${QDRANT_ENABLE_SPARSE:-true}
+      PAYLOAD_TEXT_FIELD: ${PAYLOAD_TEXT_FIELD:-content}
+      PAYLOAD_DOCUMENT_ID_FIELD: ${PAYLOAD_DOCUMENT_ID_FIELD:-queryId}
+      MIN_DENSE_SCORE: ${MIN_DENSE_SCORE:-0.28}
     ports:
       - "8080:8080"
 volumes:
