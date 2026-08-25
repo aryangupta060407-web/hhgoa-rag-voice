@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "target_root": "/home/ubuntu/hhgoa-rag-voice",
+    "generation_backend": "local",
+    "generation_model_hint": "unknown",
+    "language": "mar",
+    "split": "validation",
+    "num_answerable": 1,
+    "num_unanswerable": 1,
+    "num_examples": 2,
+    "num_chunks": 46,
+    "top_k": 5,
+    "seed": 42,
+    "num_errored": 0
+  },
+  "retrieval": {
+    "check": "retrieval (reference-based)",
+    "num_evaluated": 1,
+    "top_k": 5,
+    "cross_lingual": {
+      "recall_at_k": {
+        "1": 1.0,
+        "3": 1.0,
+        "5": 1.0
+      },
+      "mrr": 1.0
+    },
+    "same_language": {
+      "recall_at_k": {
+        "1": 1.0,
+        "3": 1.0,
+        "5": 1.0
+      },
+      "mrr": 1.0
+    }
+  },
+  "faithfulness": {
+    "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+  },
+  "correctness": {
+    "check": "correctness (reference-based, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+  },
+  "reliability": {
+    "check": "reliability / \"lying factor\" (answerable-vs-answered 2x2)",
+    "num_answerable_evaluated": 1,
+    "num_unanswerable_evaluated": 1,
+    "false_refusal_rate": 1.0,
+    "false_refusal_examples": [
+      {
+        "query": "how to find the surface area of a triangle",
+        "expected_answer": "To find the area of a triangle, multiply the base by the height, and then divide by 2. The division by 2 comes from the fact that a parallelogram can be divided into 2 triangles."
+      }
+    ],
+    "false_confidence_rate": 1.0,
+    "false_confidence_examples": [
+      {
+        "query": "what is mid range dementia",
+        "fabricated_answer": "आपण दररोज जागे असताना जी जाणीवपूर्वक केलेली मानसिक कामे आहेत, जसे की आपले नाव लक्षात ठेवणे ते गुंतागुंतीची गणिती गणना करणे, ती स्मृती ही सर्वात आवश्यक संज्ञानात्मक कार्यांपैकी एक आहे आणि बहुधा पहिले आ"
+      }
+    ]
+  },
+  "latency": {
+    "check": "latency",
+    "num_evaluated": 2,
+    "embed": {
+      "avg_ms": 20.75,
+      "p50_ms": 20.55,
+      "p95_ms": 21.96,
+      "p99_ms": 22.09
+    },
+    "search": {
+      "avg_ms": 0.34,
+      "p50_ms": 0.1,
+      "p95_ms": 0.93,
+      "p99_ms": 1.04
+    },
+    "retrieval_total": {
+      "avg_ms": 21.64,
+      "p50_ms": 21.64,
+      "p95_ms": 23.03,
+      "p99_ms": 23.15
+    },
+    "generation": {
+      "avg_ms": 0.52,
+      "p50_ms": 0.52,
+      "p95_ms": 0.66,
+      "p99_ms": 0.67
+    },
+    "retrieval_latency_budget_ms": 200,
+    "retrieval_within_budget": true,
+    "generation_latency_target_ms": 1500.0,
+    "generation_within_target": true
+  }
+}

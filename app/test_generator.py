@@ -46,10 +46,30 @@ def test_extracts_when_all_specific_subject_anchors_are_present():
     assert answer.text == "A Burgher Republic is a political state governed by its enfranchised citizens."
 
 
+def test_extracts_supported_marathi_evidence_deterministically():
+    answer = generate_answer(
+        "मॅनहॅटन प्रकल्प काय आहे?",
+        [Context("मॅनहॅटन प्रकल्प हा दुसऱ्या महायुद्धातील अणुबॉम्ब विकास कार्यक्रम होता.")],
+    )
+    assert answer.grounded is True
+    assert answer.text == "मॅनहॅटन प्रकल्प हा दुसऱ्या महायुद्धातील अणुबॉम्ब विकास कार्यक्रम होता."
+
+
+def test_refuses_irrelevant_marathi_context():
+    answer = generate_answer(
+        "माझे नाव काय आहे?",
+        [Context("मॅनहॅटन प्रकल्प हा दुसऱ्या महायुद्धातील अणुबॉम्ब विकास कार्यक्रम होता.")],
+    )
+    assert answer.grounded is False
+    assert answer.text == REFUSAL
+
+
 if __name__ == "__main__":
     test_extracts_evidence_with_subject_anchor()
     test_refuses_generic_overlap_without_subject_anchor()
     test_refuses_when_a_sentence_omits_a_required_subject_anchor()
     test_refuses_when_context_only_matches_part_of_a_multi_subject_question()
     test_extracts_when_all_specific_subject_anchors_are_present()
+    test_extracts_supported_marathi_evidence_deterministically()
+    test_refuses_irrelevant_marathi_context()
     print("Evaluation adapter generator checks passed.")

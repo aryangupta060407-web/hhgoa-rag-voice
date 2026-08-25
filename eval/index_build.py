@@ -13,7 +13,7 @@ everything else below is this suite's own, overridable via the
 EVAL_CHUNK_SIZE / EVAL_CHUNK_OVERLAP / EVAL_HNSW_* environment variables.
 
 Mixed-language on purpose: every candidate passage from every sampled
-example goes in, English and Hindi both, tagged by language. This is what
+example goes in, English and the selected Indic-language translation, tagged by language. This is what
 makes the retrieval check's cross-lingual metric possible (see
 eval/checks/retrieval.py) -- useful for any target whose embedding model
 was trained for cross-lingual retrieval (as this suite's original target
@@ -41,7 +41,7 @@ HNSW_EF_SEARCH = int(os.environ.get("EVAL_HNSW_EF_SEARCH", 32))
 @dataclass
 class ChunkRecord:
     query_id: int
-    lang: str          # "en" | "hi"
+    lang: str          # "en" | target Indic-language code
     is_selected: bool
     text: str
 
@@ -80,7 +80,7 @@ def build_index(examples: list[EvalExample]):
 
     for ex in examples:
         selected_idx = ex.gt_passage_index  # None for unanswerable examples
-        for lang, candidates in (("en", ex.candidates_en), ("hi", ex.candidates_hi)):
+        for lang, candidates in (("en", ex.candidates_en), (ex.target_language, ex.candidates_target)):
             for i, passage in enumerate(candidates):
                 if not passage:
                     continue

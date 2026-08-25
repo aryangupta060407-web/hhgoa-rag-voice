@@ -47,8 +47,8 @@ def run(results: list[ExampleResult]) -> dict:
 
     usable = [r for r in results if r.error is None]
 
-    embed_ms = [r.embed_ms_en for r in usable] + [r.embed_ms_hi for r in usable]
-    search_ms = [r.search_ms_en for r in usable] + [r.search_ms_hi for r in usable]
+    embed_ms = [r.embed_ms_en for r in usable] + [r.embed_ms_target for r in usable]
+    search_ms = [r.search_ms_en for r in usable] + [r.search_ms_target for r in usable]
     retrieval_total_ms = [r.embed_ms_en + r.search_ms_en for r in usable]
     generation_ms = [r.generation_ms for r in usable if r.generation_ms > 0]
 

@@ -23,6 +23,10 @@ STOP_WORDS = {
     "a", "an", "and", "are", "at", "be", "by", "does", "do", "did", "for", "from", "has", "have",
     "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "which", "who", "why", "with",
     "can", "could", "should", "would", "will", "was", "were", "when", "where", "my", "your",
+    # Common Marathi function and question words. Keeping these out of the
+    # subject-anchor set prevents grammatical overlap from becoming evidence.
+    "आहे", "आणि", "का", "काय", "कशी", "कसा", "कसे", "किती", "कोण", "कोणत्या", "चा", "ची", "चे",
+    "ते", "तो", "ती", "मध्ये", "माझे", "माझा", "माझी", "या", "हे", "होते", "होता", "होती", "साठी",
 }
 GENERIC_QUESTION_TERMS = {
     "fast", "speed", "travel", "quick", "quickly", "long", "time", "times", "year", "years", "work",
@@ -46,7 +50,7 @@ class EvalAnswer:
 def _tokens(text: str) -> list[str]:
     return [
         token[:-1] if len(token) > 4 and token.endswith("s") else token
-        for token in re.findall(r"[A-Za-z0-9]+", text.lower())
+        for token in re.findall(r"[^\W_]+", text.lower(), flags=re.UNICODE)
         if token not in STOP_WORDS
     ]
 

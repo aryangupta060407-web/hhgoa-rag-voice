@@ -33,7 +33,7 @@ from eval.pipeline import ExampleResult
 
 
 def _judge_one(r: ExampleResult):
-    v = judge.judge_faithfulness(answer=r.answer_text, context=r.context_text_en)
+    v = judge.judge_faithfulness(answer=r.answer_text, context=r.context_text_target)
     return r, v
 
 

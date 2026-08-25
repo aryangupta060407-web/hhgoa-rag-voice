@@ -36,58 +36,65 @@ from eval.msmarco import download_split, iter_rows
 class EvalExample:
     query_id: int
     query_en: str
-    query_hi: str
+    query_target: str
+    target_language: str
     is_answerable: bool
     gt_answer_en: str | None          # None for unanswerable rows
-    gt_passage_index: int | None      # index into candidates_en/candidates_hi of the is_selected one; None if unanswerable
+    gt_answer_target: str | None      # official translated answer; None for unanswerable rows
+    gt_passage_index: int | None      # index into candidates_en/candidates_target of the is_selected one; None if unanswerable
     candidates_en: list[str] = field(default_factory=list)
-    candidates_hi: list[str] = field(default_factory=list)
+    candidates_target: list[str] = field(default_factory=list)
 
 
 _NO_ANSWER_MARKERS = {"no answer present.", ""}
 
 
-def _row_to_example(row: dict) -> EvalExample | None:
+def _row_to_example(row: dict, language: str) -> EvalExample | None:
     passages = row.get("passages") or {}
     selected = passages.get("is_selected") or []
     cands_en = passages.get("English_passages") or []
-    cands_hi = passages.get("Translated_passages") or []
+    cands_target = passages.get("Translated_passages") or []
     query_en = (row.get("Eng_Query") or "").strip()
-    query_hi = (row.get("query") or "").strip()
-    if not query_en or not query_hi or not cands_en or not cands_hi:
+    query_target = (row.get("query") or "").strip()
+    if not query_en or not query_target or not cands_en or not cands_target:
         return None
     # Rows are 10 candidates in both languages, positionally aligned to the
     # same is_selected list -- verified directly against the schema.
-    if len(cands_en) != len(selected) or len(cands_hi) != len(selected):
+    if len(cands_en) != len(selected) or len(cands_target) != len(selected):
         return None
 
     pos_idx = next((i for i, s in enumerate(selected) if s == 1), None)
     answer_en = (row.get("Eng_Answer") or "").strip()
+    answer_target = (row.get("Answer") or "").strip()
 
-    if pos_idx is not None and answer_en.lower() not in _NO_ANSWER_MARKERS:
-        if not cands_en[pos_idx] or not cands_hi[pos_idx]:
+    if pos_idx is not None and answer_en.lower() not in _NO_ANSWER_MARKERS and answer_target.lower() not in _NO_ANSWER_MARKERS:
+        if not cands_en[pos_idx] or not cands_target[pos_idx]:
             return None
         return EvalExample(
             query_id=row["query_id"],
             query_en=query_en,
-            query_hi=query_hi,
+            query_target=query_target,
+            target_language={"hin": "hi", "mar": "mr"}.get(language, language),
             is_answerable=True,
             gt_answer_en=answer_en,
+            gt_answer_target=answer_target,
             gt_passage_index=pos_idx,
             candidates_en=cands_en,
-            candidates_hi=cands_hi,
+            candidates_target=cands_target,
         )
 
     if pos_idx is None and answer_en.lower() in _NO_ANSWER_MARKERS:
         return EvalExample(
             query_id=row["query_id"],
             query_en=query_en,
-            query_hi=query_hi,
+            query_target=query_target,
+            target_language={"hin": "hi", "mar": "mr"}.get(language, language),
             is_answerable=False,
             gt_answer_en=None,
+            gt_answer_target=None,
             gt_passage_index=None,
             candidates_en=cands_en,
-            candidates_hi=cands_hi,
+            candidates_target=cands_target,
         )
 
     # Inconsistent row (e.g. a selected passage but "No Answer Present." text,
@@ -111,7 +118,7 @@ def load_examples(
     path = download_split(language, split)
     answerable, unanswerable = [], []
     for row in iter_rows(path, limit=scan_limit):
-        ex = _row_to_example(row)
+        ex = _row_to_example(row, language)
         if ex is None:
             continue
         (answerable if ex.is_answerable else unanswerable).append(ex)

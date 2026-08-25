@@ -48,7 +48,8 @@ def print_report(report: dict):
         f"Sample:             {meta['num_answerable']} answerable + {meta['num_unanswerable']} unanswerable "
         f"(seed={meta['seed']})"
     )
-    print(f"Index:              {meta['num_chunks']} chunks (EN+HI) from {meta['num_examples']} examples' candidates")
+    target_label = {"hin": "HI", "mar": "MR"}.get(meta["language"], str(meta["language"]).upper())
+    print(f"Index:              {meta['num_chunks']} chunks (EN+{target_label}) from {meta['num_examples']} examples' candidates")
     print(f"top_k:              {meta['top_k']}")
 
     r = report["retrieval"]
@@ -83,7 +84,7 @@ def print_report(report: dict):
                 print(f"      judge: {ex['judge_reason']}")
 
     c = report["correctness"]
-    _section("CORRECTNESS  (reference-based -- LLM-as-judge vs. MSMARCO-XI Eng_Answer)")
+    _section("CORRECTNESS  (reference-based -- LLM-as-judge vs. MSMARCO-XI translated reference answer)")
     if c.get("error"):
         print(f"  SKIPPED: {c['error']}")
     else:

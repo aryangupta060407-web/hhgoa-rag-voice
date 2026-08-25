@@ -61,7 +61,7 @@ def main():
     parser.add_argument("--judge-workers", type=int, default=8, help="parallel workers for judge calls, per check (default: 8)")
     parser.add_argument("--skip-judge", action="store_true", help="skip optional external judge checks and retain real retrieval, reliability, and latency metrics")
     parser.add_argument("--seed", type=int, default=42, help="sampling seed (default: 42)")
-    parser.add_argument("--language", default="hin", help="MSMARCO-XI language code (default: hin)")
+    parser.add_argument("--language", default="hin", help="MSMARCO-XI source code, e.g. hin or mar (default: hin)")
     parser.add_argument("--split", default="validation", help="MSMARCO-XI split (default: validation)")
     parser.add_argument("--rag-root", default=None, help="path to the target RAG project (default: RAG_PROJECT_ROOT env var, then ../RAG)")
     args = parser.parse_args()

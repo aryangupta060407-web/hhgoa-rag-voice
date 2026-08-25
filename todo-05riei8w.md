@@ -90,3 +90,4 @@
 - [x] Rename the visible project identity and application metadata to संवाद (Samvad) without changing the RAG pipeline.
 - [x] Run the supplied local evaluation loop and produce an honest result artifact in the requested metrics format.
 - [x] Strengthen deterministic evaluator answer qualification against weak contextual overlap without using labels or a generative model.
+- [x] Audit Marathi query-answer-evidence mappings and add a separately labeled Marathi evaluation only if valid ground truth is available.

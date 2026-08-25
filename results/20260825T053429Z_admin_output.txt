@@ -1,0 +1,79 @@
+Target project: /home/ubuntu/hhgoa-rag-voice
+Embedder: app.embedder  |  Generator: app.generator
+Loading 25 answerable + 25 unanswerable examples from MSMARCO-XI...
+Dataset split: validation/marval.parquet (official Marathi translation)
+Building isolated mixed-language FAISS index from sampled candidate passages...
+Indexed 1160 chunks.
+Running retrieval + generation (1 workers requested)...
+[pipeline] 10/50 examples processed
+[pipeline] 20/50 examples processed
+[pipeline] 30/50 examples processed
+[pipeline] 40/50 examples processed
+[pipeline] 50/50 examples processed
+
+Running checks in parallel: retrieval, faithfulness, correctness, reliability, latency...
+======================================================================
+RAG Local Eval Loop -- results
+======================================================================
+Target project:     /home/ubuntu/hhgoa-rag-voice
+Generation backend: local (deterministic-extractive-no-llm)
+Dataset:            ai4bharat/MSMARCO-XI (mar, validation)
+Sample:             25 answerable + 25 unanswerable (seed=42)
+Index:              1160 chunks (EN+MR) from 50 examples' candidates
+top_k:              5
+
+RETRIEVAL  (reference-based -- vs. MSMARCO-XI is_selected labels)
+-----------------------------------------------------------------
+  25 answerable queries evaluated
+
+  cross-lingual (either language is a hit):
+  Recall@1                      0.480  [############............]  ideal 1.000  -52.0pp short
+  Recall@3                      0.760  [##################......]  ideal 1.000  -24.0pp short
+  Recall@5                      0.920  [######################..]  ideal 1.000  -8.0pp short
+  MRR                           0.658  [################........]  ideal 1.000  -34.2pp short
+
+  same-language only:
+  Recall@1                      0.480  [############............]  ideal 1.000  -52.0pp short
+  Recall@3                      0.760  [##################......]  ideal 1.000  -24.0pp short
+  Recall@5                      0.920  [######################..]  ideal 1.000  -8.0pp short
+  MRR                           0.658  [################........]  ideal 1.000  -34.2pp short
+
+FAITHFULNESS / HALLUCINATION  (reference-free -- LLM-as-judge)
+-----------------------------------------------------------------
+  SKIPPED: Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run.
+
+CORRECTNESS  (reference-based -- LLM-as-judge vs. MSMARCO-XI translated reference answer)
+-----------------------------------------------------------------
+  SKIPPED: Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run.
+
+RELIABILITY / "LYING FACTOR"  (should-answer vs. did-answer)
+------------------------------------------------------------
+  False refusal rate            0.120  [###.....................]  ideal 0.000  +12.0pp over
+    (answerable per the dataset, but the system declined -- lost, not wrong)
+  False confidence rate         0.680  [################........]  ideal 0.000  +68.0pp over
+    (unanswerable per the dataset -- no candidate passage is relevant -- but the system answered anyway)
+  Sample false-confidence cases:
+    - Q: begher republic definition
+      extracted: रॉबर्ट मर्टनचा सिद्धांत, एमिल डर्कहाईमच्या प्रभावाखाली, असा आरोप करतो की ती व्यक्ती सांस्कृतिकदृष्ट्या मान्यताप्राप्त ध्येये साध्य करण्यासाठी प्रयत्न करण्याची इच्छा प्राप्त करते.
+    - Q: the ant and the dove fable
+      extracted: मुलांनी मुंगी आणि/किंवा कबुतर किंवा या दंतकथेचे चित्र काढून मजकुराखाली रंगवा.
+    - Q: how is cultural transmission theory related to the concentric zone hypothesis?
+      extracted: शिकागोसारख्या शहराच्या मध्यभागातून उद्भवणाऱ्या आणि बाहेर पसरणाऱ्या केंद्रीय क्षेत्राच्या गोळाकार आकृतिबंधाच्या परिकल्पना मालिकेची व्याख्या.
+
+LATENCY
+-------
+  stage                 avg      p50      p95      p99   (ms)
+  embed               21.58    21.24    25.24    26.94
+  search               0.27     0.26     0.31     0.35
+  retrieval_total     21.44    21.05    25.34    26.37
+  generation           0.58     0.55     0.92     1.34
+
+  Retrieval  p95 25.34ms vs. 200ms budget  -> PASS
+  Generation p95 0.92ms vs. 1500.0ms target  -> PASS  (deterministic extractive selection)
+
+======================================================================
+
+Source metrics JSON: /home/ubuntu/hhgoa-rag-voice/results/20260825T053429Z.json
+Notes: This is a real, separately measured Marathi run using official
+`marval` query-answer-selected-passage mappings. It must not be merged with
+the Hindi run; English is the paired original-content arm in both reports.

@@ -16,7 +16,11 @@ from eval.pipeline import ExampleResult
 
 
 def _judge_one(r: ExampleResult):
-    v = judge.judge_correctness(query=r.example.query_en, answer=r.answer_text, reference_answer=r.example.gt_answer_en)
+    v = judge.judge_correctness(
+        query=r.example.query_target,
+        answer=r.answer_text,
+        reference_answer=r.example.gt_answer_target,
+    )
     return r, v
 
 
@@ -46,8 +50,8 @@ def run(results: list[ExampleResult], workers: int) -> dict:
     n = len(verdicts)
     incorrect_examples = [
         {
-            "query": r.example.query_en,
-            "reference_answer": r.example.gt_answer_en[:200],
+            "query": r.example.query_target,
+            "reference_answer": r.example.gt_answer_target[:200],
             "answer": r.answer_text[:200],
             "judge_reason": v.reason,
         }

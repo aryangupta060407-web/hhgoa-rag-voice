@@ -23,7 +23,14 @@ The adapter uses the production dense encoder, `intfloat/multilingual-e5-small`,
 
 The supplied evaluator successfully resolved this project’s adapter modules and their required function names using its native `eval.target.verify_target()` contract check. Focused regression checks cover both supported extraction and refusals when a sentence only overlaps weakly with a multi-part question.
 
-The project has a real 25-answerable plus 25-unanswerable run at `results/20260822T181145Z.json`. It measures **Recall@1 0.560**, **Recall@3 0.800**, **Recall@5 0.840**, **MRR 0.6833**, **false-refusal 0.240**, **false-confidence 0.320**, and retrieval **P95 20.04 ms**. These are evaluator-local FAISS results, not production Qdrant/RRF results.
+The project now has **two separate real 25-answerable plus 25-unanswerable runs**. MSMARCO-XI publishes distinct Hindi (`hinval`) and Marathi (`marval`) validation files, each with translated queries, answers, selected-passage labels, and original English content.[1]
+
+| Evaluated validation file | Query/evidence languages in the temporary FAISS index | Result JSON | Retrieval metrics | Reliability | Retrieval P95 |
+|---|---|---|---|---|---:|
+| Hindi `hinval` | English + Hindi | `results/20260822T181145Z.json` | R@1 0.560; R@3 0.800; R@5 0.840; MRR 0.6833 | False refusal 0.240; false confidence 0.320 | 20.04 ms |
+| Marathi `marval` | English + Marathi | `results/20260825T053429Z.json` | R@1 0.480; R@3 0.760; R@5 0.920; MRR 0.6580 | False refusal 0.120; false confidence 0.680 | 25.34 ms |
+
+The original submitted result was Hindi-scoped because it ran the evaluator default `--language hin`; that is now corrected with a separately labeled Marathi run. **English is the paired original-content arm in both runs, not a separately measured English-only score.** The two reports must not be averaged or presented as one combined 100-example result.
 
 Judge-backed faithfulness and correctness are intentionally marked **SKIPPED** for this run. The configured external judge returned no usable completion in the earlier attempt, so the rerun used `--skip-judge` rather than pretending a judge score existed. The optional judge is only a grader; it is never used in the application's deterministic answer path.
 
@@ -50,3 +57,13 @@ If no usable judge service is available, use the following honest local-metrics 
 ```
 
 Submit the untouched terminal output and `results/<timestamp>.json`. The report’s retrieval numbers evaluate the project’s real E5 encoder on the evaluator’s own temporary FAISS index; they should not be represented as production Qdrant hybrid/RRF scores. The project-native live Qdrant diagnostic report is supplementary evidence only.
+
+To reproduce the Marathi run, use:
+
+```powershell
+.\run.ps1 --num-answerable 25 --num-unanswerable 25 --workers 1 --language mar --skip-judge
+```
+
+## References
+
+[1]: https://huggingface.co/datasets/ai4bharat/MSMARCO-XI "AI4Bharat MSMARCO-XI dataset card"

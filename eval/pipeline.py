@@ -4,7 +4,7 @@ Every check in eval/checks/ grades the output collected here; none of them
 call app.retriever or app.generator directly.
 
 Retrieval is bilingual (English query vs. the shared mixed-language index,
-and Hindi query vs. the same index) since that's what the retrieval check
+and the selected Indic-language query vs. the same index) since that's what the retrieval check
 needs (see eval/checks/retrieval.py). Generation is English-only: the
 system prompt, judge prompts, and MSMARCO-XI's Eng_Answer ground truth are
 all English, so an English-only generation pass is what those checks can
@@ -59,12 +59,12 @@ class _Context:
 class ExampleResult:
     example: EvalExample
     retrieved_en: list[RetrievedHit] = field(default_factory=list)
-    retrieved_hi: list[RetrievedHit] = field(default_factory=list)
+    retrieved_target: list[RetrievedHit] = field(default_factory=list)
     embed_ms_en: float = 0.0
     search_ms_en: float = 0.0
-    embed_ms_hi: float = 0.0
-    search_ms_hi: float = 0.0
-    context_text_en: str = ""          # what was actually handed to the generator
+    embed_ms_target: float = 0.0
+    search_ms_target: float = 0.0
+    context_text_target: str = ""      # what was actually handed to the generator
     answer_text: str = ""
     answer_grounded: bool = False
     generation_ms: float = 0.0
@@ -93,19 +93,19 @@ def _process_one(ex: EvalExample, index, records: list[ChunkRecord], top_k: int)
     result = ExampleResult(example=ex)
     try:
         hits_en, embed_ms_en, search_ms_en, chunk_records_en = _search(ex.query_en, index, records, top_k, embed_one)
-        hits_hi, embed_ms_hi, search_ms_hi, _ = _search(ex.query_hi, index, records, top_k, embed_one)
+        hits_target, embed_ms_target, search_ms_target, chunk_records_target = _search(ex.query_target, index, records, top_k, embed_one)
         result.retrieved_en = hits_en
-        result.retrieved_hi = hits_hi
+        result.retrieved_target = hits_target
         result.embed_ms_en, result.search_ms_en = embed_ms_en, search_ms_en
-        result.embed_ms_hi, result.search_ms_hi = embed_ms_hi, search_ms_hi
+        result.embed_ms_target, result.search_ms_target = embed_ms_target, search_ms_target
 
         search_results = [
             _Context(text=rec.text, source=f"msmarco-xi/q{rec.query_id}/{rec.lang}", score=hit.score)
-            for rec, hit in zip(chunk_records_en, hits_en)
+            for rec, hit in zip(chunk_records_target, hits_target)
         ]
-        result.context_text_en = "\n\n".join(sr.text for sr in search_results)
+        result.context_text_target = "\n\n".join(sr.text for sr in search_results)
 
-        answer = generate_answer(ex.query_en, search_results)
+        answer = generate_answer(ex.query_target, search_results)
         result.answer_text = answer.text
         result.answer_grounded = answer.grounded
         result.generation_ms = answer.generation_ms

@@ -6,11 +6,11 @@ a known-correct label, not asking a judge to guess.
 
 Two variants computed together:
   "cross_lingual" -- a hit counts regardless of which language chunk was
-                      retrieved (English query finding the Hindi version of
+                      retrieved (English query finding the selected Indic-language version of
                       the right passage still counts). This is the metric
                       that actually reflects what the target project's
                       embedding model was fine-tuned for -- cross-lingual
-                      Hindi/English alignment on this exact dataset -- so
+                      Indic-language/English alignment on this exact dataset -- so
                       it's the headline number.
   "same_language"  -- a hit only counts if the retrieved chunk's language
                       matches the query's language. Included for
@@ -42,13 +42,14 @@ def run(results: list[ExampleResult], top_k: int) -> dict:
     answerable = [r for r in results if r.example.is_answerable and r.error is None]
 
     metrics = {}
-    for variant, en_lang, hi_lang in (("cross_lingual", None, None), ("same_language", "en", "hi")):
+    target_lang = answerable[0].example.target_language if answerable else None
+    for variant, en_lang, target_lang_filter in (("cross_lingual", None, None), ("same_language", "en", target_lang)):
         hits_at_k = {k: 0 for k in k_levels}
         reciprocal_ranks = []
         for r in answerable:
             rank_en = _rank(r.retrieved_en, r.example.query_id, en_lang)
-            rank_hi = _rank(r.retrieved_hi, r.example.query_id, hi_lang)
-            best_rank = min((x for x in (rank_en, rank_hi) if x is not None), default=None)
+            rank_target = _rank(r.retrieved_target, r.example.query_id, target_lang_filter)
+            best_rank = min((x for x in (rank_en, rank_target) if x is not None), default=None)
             reciprocal_ranks.append(1.0 / best_rank if best_rank else 0.0)
             for k in k_levels:
                 if best_rank and best_rank <= k:
