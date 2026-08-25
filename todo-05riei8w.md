@@ -94,3 +94,4 @@
 - [x] Produce a clear submission-ready screenshot of the real Marathi evaluation result with scope and judge status visible.
 - [x] Capture and verify a direct screenshot of the saved Marathi terminal-output TXT for submission.
 - [x] Produce separate, clearly labeled English, Hindi, and Marathi 25+25 evaluation reports and direct-output screenshots using a consistent official-source protocol.
+- [x] Produce one combined summary screenshot that presents the three separate real language evaluations without inventing an aggregate score.
