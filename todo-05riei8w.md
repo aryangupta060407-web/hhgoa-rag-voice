@@ -91,3 +91,5 @@
 - [x] Run the supplied local evaluation loop and produce an honest result artifact in the requested metrics format.
 - [x] Strengthen deterministic evaluator answer qualification against weak contextual overlap without using labels or a generative model.
 - [x] Audit Marathi query-answer-evidence mappings and add a separately labeled Marathi evaluation only if valid ground truth is available.
+- [x] Produce a clear submission-ready screenshot of the real Marathi evaluation result with scope and judge status visible.
+- [x] Capture and verify a direct screenshot of the saved Marathi terminal-output TXT for submission.
