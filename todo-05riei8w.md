@@ -95,3 +95,4 @@
 - [x] Capture and verify a direct screenshot of the saved Marathi terminal-output TXT for submission.
 - [x] Produce separate, clearly labeled English, Hindi, and Marathi 25+25 evaluation reports and direct-output screenshots using a consistent official-source protocol.
 - [x] Produce one combined summary screenshot that presents the three separate real language evaluations without inventing an aggregate score.
+- [x] Provide a copyable code-and-command bundle for the three-language evaluation workflow and combined summary generation.
