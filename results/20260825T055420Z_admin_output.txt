@@ -1,0 +1,61 @@
+PS D:\HHGOA\hhgoa_eval> .\run.ps1 --num-answerable 25 --num-unanswerable 25 --workers 1 --language hin --skip-judge
+Target project: /home/ubuntu/hhgoa-rag-voice
+Embedder: app.embedder  |  Generator: app.generator
+Loading 25 answerable + 25 unanswerable examples from MSMARCO-XI...
+Dataset split: validation/hinval.parquet (official Hindi translation)
+Building isolated mixed-language FAISS index from sampled candidate passages...
+Indexed 1166 chunks.
+Running retrieval + generation (1 workers requested)...
+[pipeline] 10/50 examples processed
+[pipeline] 20/50 examples processed
+[pipeline] 30/50 examples processed
+[pipeline] 40/50 examples processed
+[pipeline] 50/50 examples processed
+
+Running checks in parallel: retrieval, faithfulness, correctness, reliability, latency...
+======================================================================
+RAG Local Eval Loop -- results
+======================================================================
+Target project:     /home/ubuntu/hhgoa-rag-voice
+Generation backend: local (deterministic-extractive-no-llm)
+Dataset:            ai4bharat/MSMARCO-XI (hin, validation)
+Sample:             25 answerable + 25 unanswerable (seed=42)
+Index:              1166 chunks (EN+HI) from 50 examples' candidates
+top_k:              5
+
+RETRIEVAL  (reference-based -- vs. MSMARCO-XI is_selected labels)
+-----------------------------------------------------------------
+  25 answerable queries evaluated
+  Recall@1                      0.560  [#############...........]  ideal 1.000  -44.0pp short
+  Recall@3                      0.800  [###################.....]  ideal 1.000  -20.0pp short
+  Recall@5                      0.840  [####################....]  ideal 1.000  -16.0pp short
+  MRR                           0.683  [################........]  ideal 1.000  -31.7pp short
+
+FAITHFULNESS / HALLUCINATION  (reference-free -- LLM-as-judge)
+-----------------------------------------------------------------
+  SKIPPED: Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run.
+
+CORRECTNESS  (reference-based -- LLM-as-judge vs. MSMARCO-XI translated reference answer)
+-----------------------------------------------------------------
+  SKIPPED: Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run.
+
+RELIABILITY / "LYING FACTOR"  (should-answer vs. did-answer)
+------------------------------------------------------------
+  False refusal rate            0.000  [........................]  ideal 0.000  PERFECT
+  False confidence rate         0.920  [######################..]  ideal 0.000  +92.0pp over
+
+LATENCY
+-------
+  stage                 avg      p50      p95      p99   (ms)
+  embed               19.14    18.82    22.25    25.34
+  search               0.20     0.20     0.24     0.27
+  retrieval_total     18.94    18.57    21.81    22.33
+  generation           0.50     0.46     0.75     1.00
+
+  Retrieval  p95 21.81ms vs. 200ms budget  -> PASS
+  Generation p95 0.75ms vs. 1500.0ms target  -> PASS  (deterministic extractive selection)
+
+======================================================================
+Source metrics JSON: /home/ubuntu/hhgoa-rag-voice/results/20260825T055420Z.json
+Notes: This is the real standalone Hindi evaluation from official hinval
+query-answer-selected-passage mappings.

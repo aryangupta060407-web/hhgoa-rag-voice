@@ -43,12 +43,13 @@ def print_report(report: dict):
     meta = report["meta"]
     print(f"Target project:     {meta['target_root']}")
     print(f"Generation backend: {meta['generation_backend']} ({meta['generation_model_hint']})")
-    print(f"Dataset:            ai4bharat/MSMARCO-XI ({meta['language']}, {meta['split']})")
+    source_note = "; official English fields in hinval" if meta["language"] in {"en", "eng", "english"} else ""
+    print(f"Dataset:            ai4bharat/MSMARCO-XI ({meta['language']}, {meta['split']}{source_note})")
     print(
         f"Sample:             {meta['num_answerable']} answerable + {meta['num_unanswerable']} unanswerable "
         f"(seed={meta['seed']})"
     )
-    target_label = {"hin": "HI", "mar": "MR"}.get(meta["language"], str(meta["language"]).upper())
+    target_label = {"hin": "HI", "mar": "MR", "eng": "EN", "en": "EN", "english": "EN"}.get(meta["language"], str(meta["language"]).upper())
     print(f"Index:              {meta['num_chunks']} chunks (EN+{target_label}) from {meta['num_examples']} examples' candidates")
     print(f"top_k:              {meta['top_k']}")
 

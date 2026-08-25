@@ -53,9 +53,10 @@ def _row_to_example(row: dict, language: str) -> EvalExample | None:
     passages = row.get("passages") or {}
     selected = passages.get("is_selected") or []
     cands_en = passages.get("English_passages") or []
-    cands_target = passages.get("Translated_passages") or []
+    is_english = language in {"en", "eng", "english"}
+    cands_target = cands_en if is_english else passages.get("Translated_passages") or []
     query_en = (row.get("Eng_Query") or "").strip()
-    query_target = (row.get("query") or "").strip()
+    query_target = query_en if is_english else (row.get("query") or "").strip()
     if not query_en or not query_target or not cands_en or not cands_target:
         return None
     # Rows are 10 candidates in both languages, positionally aligned to the
@@ -65,7 +66,7 @@ def _row_to_example(row: dict, language: str) -> EvalExample | None:
 
     pos_idx = next((i for i, s in enumerate(selected) if s == 1), None)
     answer_en = (row.get("Eng_Answer") or "").strip()
-    answer_target = (row.get("Answer") or "").strip()
+    answer_target = answer_en if is_english else (row.get("Answer") or "").strip()
 
     if pos_idx is not None and answer_en.lower() not in _NO_ANSWER_MARKERS and answer_target.lower() not in _NO_ANSWER_MARKERS:
         if not cands_en[pos_idx] or not cands_target[pos_idx]:
@@ -74,7 +75,7 @@ def _row_to_example(row: dict, language: str) -> EvalExample | None:
             query_id=row["query_id"],
             query_en=query_en,
             query_target=query_target,
-            target_language={"hin": "hi", "mar": "mr"}.get(language, language),
+            target_language={"hin": "hi", "mar": "mr", "eng": "en", "english": "en"}.get(language, language),
             is_answerable=True,
             gt_answer_en=answer_en,
             gt_answer_target=answer_target,
@@ -88,7 +89,7 @@ def _row_to_example(row: dict, language: str) -> EvalExample | None:
             query_id=row["query_id"],
             query_en=query_en,
             query_target=query_target,
-            target_language={"hin": "hi", "mar": "mr"}.get(language, language),
+            target_language={"hin": "hi", "mar": "mr", "eng": "en", "english": "en"}.get(language, language),
             is_answerable=False,
             gt_answer_en=None,
             gt_answer_target=None,
@@ -115,7 +116,11 @@ def load_examples(
     file is unnecessary for a sample of a few dozen-hundred), buckets them,
     and returns a fixed-seed random sample of each bucket, concatenated.
     Doesn't touch the target project at all -- see this module's docstring."""
-    path = download_split(language, split)
+    # MSMARCO-XI publishes the original English query, answer, and passage
+    # columns alongside each Indic translation. The official Hindi split is
+    # used as the source for the English-only projection.
+    source_language = "hin" if language in {"en", "eng", "english"} else language
+    path = download_split(source_language, split)
     answerable, unanswerable = [], []
     for row in iter_rows(path, limit=scan_limit):
         ex = _row_to_example(row, language)

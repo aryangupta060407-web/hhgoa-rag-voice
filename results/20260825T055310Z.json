@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "target_root": "/home/ubuntu/hhgoa-rag-voice",
+    "generation_backend": "local",
+    "generation_model_hint": "unknown",
+    "language": "eng",
+    "source_split_language": "hin",
+    "split": "validation",
+    "num_answerable": 25,
+    "num_unanswerable": 25,
+    "num_examples": 50,
+    "num_chunks": 585,
+    "top_k": 5,
+    "seed": 42,
+    "num_errored": 0
+  },
+  "retrieval": {
+    "check": "retrieval (reference-based)",
+    "num_evaluated": 25,
+    "top_k": 5,
+    "cross_lingual": {
+      "recall_at_k": {
+        "1": 0.44,
+        "3": 0.76,
+        "5": 0.84
+      },
+      "mrr": 0.62
+    },
+    "same_language": {
+      "recall_at_k": {
+        "1": 0.44,
+        "3": 0.76,
+        "5": 0.84
+      },
+      "mrr": 0.62
+    }
+  },
+  "faithfulness": {
+    "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+  },
+  "correctness": {
+    "check": "correctness (reference-based, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+  },
+  "reliability": {
+    "check": "reliability / \"lying factor\" (answerable-vs-answered 2x2)",
+    "num_answerable_evaluated": 25,
+    "num_unanswerable_evaluated": 25,
+    "false_refusal_rate": 0.24,
+    "false_refusal_examples": [
+      {
+        "query": "what is megatron called",
+        "expected_answer": "Megatron is the founder of the Decepticon uprising, and their most well-known and feared leader."
+      },
+      {
+        "query": "do dolphins have the smell sense",
+        "expected_answer": "Yes,They were thought to lack the ability."
+      },
+      {
+        "query": "what makes marsala wine special",
+        "expected_answer": "Marsala wine is used in many different Italian foods, but it is most famous for chicken marsala."
+      },
+      {
+        "query": "gas dryers running cost",
+        "expected_answer": "Gas dryers cost anywhere from about $350 to $1,600."
+      },
+      {
+        "query": "cost of an average wedding cake",
+        "expected_answer": "The national average cost of wedding cakes will be $451 in 2013, jumping to $466 in 2014."
+      }
+    ],
+    "false_confidence_rate": 0.32,
+    "false_confidence_examples": [
+      {
+        "query": "what is that cluster of stars near taurus",
+        "fabricated_answer": "Like bright jewels on the back of Taurus sit the Pleiades, a tiny cluster of brilliant bluish stars."
+      },
+      {
+        "query": "the ant and the dove fable",
+        "fabricated_answer": "Aesop's Fable: The Ant and the Dove."
+      },
+      {
+        "query": "what the max units in total war warhammer",
+        "fabricated_answer": "6 out of 10, saying Total War: Warhammer brims with exciting ideas, awesome characters, and delightful units and faction mechanics."
+      },
+      {
+        "query": "subcortical band heterotopia symptoms",
+        "fabricated_answer": "Subcortical band heterotopia: Another name for Double cortex syndrome (or close medical condition association)."
+      },
+      {
+        "query": "what is zero glycemic",
+        "fabricated_answer": "What is the Glycemic Index of Coke Zero?"
+      }
+    ]
+  },
+  "latency": {
+    "check": "latency",
+    "num_evaluated": 50,
+    "embed": {
+      "avg_ms": 19.82,
+      "p50_ms": 19.51,
+      "p95_ms": 23.5,
+      "p99_ms": 24.02
+    },
+    "search": {
+      "avg_ms": 0.2,
+      "p50_ms": 0.18,
+      "p95_ms": 0.23,
+      "p99_ms": 0.69
+    },
+    "retrieval_total": {
+      "avg_ms": 20.02,
+      "p50_ms": 19.68,
+      "p95_ms": 23.65,
+      "p99_ms": 24.69
+    },
+    "generation": {
+      "avg_ms": 0.35,
+      "p50_ms": 0.34,
+      "p95_ms": 0.46,
+      "p99_ms": 0.83
+    },
+    "retrieval_latency_budget_ms": 200,
+    "retrieval_within_budget": true,
+    "generation_latency_target_ms": 1500.0,
+    "generation_within_target": true
+  }
+}

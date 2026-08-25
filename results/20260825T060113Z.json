@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "target_root": "/home/ubuntu/hhgoa-rag-voice",
+    "generation_backend": "local",
+    "generation_model_hint": "unknown",
+    "language": "mar",
+    "source_split_language": "mar",
+    "split": "validation",
+    "num_answerable": 25,
+    "num_unanswerable": 25,
+    "num_examples": 50,
+    "num_chunks": 1160,
+    "top_k": 5,
+    "seed": 42,
+    "num_errored": 0
+  },
+  "retrieval": {
+    "check": "retrieval (reference-based)",
+    "num_evaluated": 25,
+    "top_k": 5,
+    "cross_lingual": {
+      "recall_at_k": {
+        "1": 0.48,
+        "3": 0.76,
+        "5": 0.92
+      },
+      "mrr": 0.658
+    },
+    "same_language": {
+      "recall_at_k": {
+        "1": 0.48,
+        "3": 0.76,
+        "5": 0.92
+      },
+      "mrr": 0.658
+    }
+  },
+  "faithfulness": {
+    "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+  },
+  "correctness": {
+    "check": "correctness (reference-based, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+  },
+  "reliability": {
+    "check": "reliability / \"lying factor\" (answerable-vs-answered 2x2)",
+    "num_answerable_evaluated": 25,
+    "num_unanswerable_evaluated": 25,
+    "false_refusal_rate": 0.12,
+    "false_refusal_examples": [
+      {
+        "query": "how to find the surface area of a triangle",
+        "expected_answer": "To find the area of a triangle, multiply the base by the height, and then divide by 2. The division by 2 comes from the fact that a parallelogram can be divided into 2 triangles."
+      },
+      {
+        "query": "do dolphins have the smell sense",
+        "expected_answer": "Yes,They were thought to lack the ability."
+      },
+      {
+        "query": "what is the atoms and molecules full of",
+        "expected_answer": "An atom is composed of a dense core called the nucleus and a series of outer shells occupied by orbiting electrons and molecules are made up of atoms."
+      }
+    ],
+    "false_confidence_rate": 0.68,
+    "false_confidence_examples": [
+      {
+        "query": "begher republic  definition",
+        "fabricated_answer": "रॉबर्ट मर्टनचा सिद्धांत, एमिल डर्कहाईमच्या प्रभावाखाली, असा आरोप करतो की ती व्यक्ती सांस्कृतिकदृष्ट्या मान्यताप्राप्त ध्येये साध्य करण्यासाठी प्रयत्न करण्याची इच्छा प्राप्त करते, परंतु ते ही ध्येये सा"
+      },
+      {
+        "query": "the ant and the dove fable",
+        "fabricated_answer": "मुलांनी मुंगी आणि/किंवा कबुतर किंवा या दंतकथेचे चित्र काढून मजकुराखाली रंगवा."
+      },
+      {
+        "query": "how is cultural transmission theory related to the concentric zone hypothesis? .",
+        "fabricated_answer": "शिकागोसारख्या शहराच्या मध्यभागातून उद्भवणाऱ्या आणि बाहेर पसरणाऱ्या केंद्रीय क्षेत्राच्या गोळाकार आकृतिबंधाच्या परिकल्पना मालिकेची व्याख्या, वेगवेगळ्या सामाजिक-आर्थिक परिस्थितींचे वैशिष्ट्य असलेल्या वि"
+      },
+      {
+        "query": "what is the astrolabe used for today?",
+        "fabricated_answer": "अ‍ॅस्ट्रोलेब नावाचे हे उपकरण, जहाजाची अक्षांश किंवा विषुववृत्तापासूनचे अंतर निर्धारित करण्यासाठी सूर्याची उंची पाहण्यासाठी वापरले जात असे."
+      },
+      {
+        "query": "how do cyber attacks happen",
+        "fabricated_answer": "पुन्हा विचार करा: नकाशावरून जगभरात वास्तविक वेळेत होणारे लाखो सायबर हल्ले दिसून येतात."
+      }
+    ]
+  },
+  "latency": {
+    "check": "latency",
+    "num_evaluated": 50,
+    "embed": {
+      "avg_ms": 17.73,
+      "p50_ms": 17.46,
+      "p95_ms": 20.06,
+      "p99_ms": 21.11
+    },
+    "search": {
+      "avg_ms": 0.21,
+      "p50_ms": 0.2,
+      "p95_ms": 0.24,
+      "p99_ms": 0.31
+    },
+    "retrieval_total": {
+      "avg_ms": 17.72,
+      "p50_ms": 17.39,
+      "p95_ms": 20.16,
+      "p99_ms": 23.67
+    },
+    "generation": {
+      "avg_ms": 0.53,
+      "p50_ms": 0.53,
+      "p95_ms": 0.66,
+      "p99_ms": 0.77
+    },
+    "retrieval_latency_budget_ms": 200,
+    "retrieval_within_budget": true,
+    "generation_latency_target_ms": 1500.0,
+    "generation_within_target": true
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "target_root": "/home/ubuntu/hhgoa-rag-voice",
+    "generation_backend": "local",
+    "generation_model_hint": "unknown",
+    "language": "hin",
+    "source_split_language": "hin",
+    "split": "validation",
+    "num_answerable": 25,
+    "num_unanswerable": 25,
+    "num_examples": 50,
+    "num_chunks": 1166,
+    "top_k": 5,
+    "seed": 42,
+    "num_errored": 0
+  },
+  "retrieval": {
+    "check": "retrieval (reference-based)",
+    "num_evaluated": 25,
+    "top_k": 5,
+    "cross_lingual": {
+      "recall_at_k": {
+        "1": 0.56,
+        "3": 0.8,
+        "5": 0.84
+      },
+      "mrr": 0.6833
+    },
+    "same_language": {
+      "recall_at_k": {
+        "1": 0.56,
+        "3": 0.8,
+        "5": 0.84
+      },
+      "mrr": 0.6833
+    }
+  },
+  "faithfulness": {
+    "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+  },
+  "correctness": {
+    "check": "correctness (reference-based, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "Judge-based checks skipped by --skip-judge because the external judge returned no usable completion in the prior run."
+  },
+  "reliability": {
+    "check": "reliability / \"lying factor\" (answerable-vs-answered 2x2)",
+    "num_answerable_evaluated": 25,
+    "num_unanswerable_evaluated": 25,
+    "false_refusal_rate": 0.0,
+    "false_refusal_examples": [],
+    "false_confidence_rate": 0.92,
+    "false_confidence_examples": [
+      {
+        "query": "what is that cluster of stars near taurus",
+        "fabricated_answer": "उस समय वृषभ में वसंत के पहले दिन सूर्य था। क्रीट के राजा की पुत्री यूरोपा को ले जाने के लिए बैल में बदल जाने की रोमन कहानी। वृषभ का वर्णन आसानी से देखा जा सकता है, इसका सिर हाइड्स है, जो तारों का एक व"
+      },
+      {
+        "query": "the ant and the dove fable",
+        "fabricated_answer": "यह एसोप की दंतकथा एक प्यासी चींटी की कहानी बताती है जो पानी पीते समय नदी में गिर जाती है। एक कबूतर एक पत्ता नदी में गिराकर चींटी को बचाता है, जो चींटी को सुरक्षित स्थान पर ले जाता है। चींटी को कबूतर क"
+      },
+      {
+        "query": "how is cultural transmission theory related to the concentric zone hypothesis? .",
+        "fabricated_answer": "संकेंद्रित क्षेत्र परिकल्पना में, शहर के केंद्र के पास का क्षेत्र, जो शहरी नवीकरण जैसे परिवर्तन से गुजर रहा है, अपराध की उच्च दरों द्वारा विशेषता; संक्रमण का क्षेत्र"
+      },
+      {
+        "query": "how long does it take for government college loans to be issued",
+        "fabricated_answer": "ऋण स्वीकृति के बाद, ऋणदाता को ऋण की आय को कॉलेज या आपको भुगतान करने में 2 सप्ताह से 2 महीने का समय लग सकता है, जो लागू होता है। यदि पैसा सीधे कॉलेज भेजा जाता है, तो आमतौर पर आपको शेष पैसा वापस मिलने म"
+      },
+      {
+        "query": "what is the astrolabe used for today?",
+        "fabricated_answer": "अस्ट्रोलेब का उपयोग किसी अन्य अक्षांश में समय या समय निर्धारित करने के लिए किया जा सकता है (या यदि आप समय जानते हैं, लेकिन नहीं जानते कि आप किस अक्षांश पर हैं, तो आप एक अस्ट्रोलेब का उपयोग करके यह पता"
+      }
+    ]
+  },
+  "latency": {
+    "check": "latency",
+    "num_evaluated": 50,
+    "embed": {
+      "avg_ms": 18.38,
+      "p50_ms": 17.9,
+      "p95_ms": 23.33,
+      "p99_ms": 24.1
+    },
+    "search": {
+      "avg_ms": 0.23,
+      "p50_ms": 0.2,
+      "p95_ms": 0.27,
+      "p99_ms": 0.33
+    },
+    "retrieval_total": {
+      "avg_ms": 18.25,
+      "p50_ms": 17.81,
+      "p95_ms": 21.48,
+      "p99_ms": 23.81
+    },
+    "generation": {
+      "avg_ms": 0.47,
+      "p50_ms": 0.44,
+      "p95_ms": 0.69,
+      "p99_ms": 0.86
+    },
+    "retrieval_latency_budget_ms": 200,
+    "retrieval_within_budget": true,
+    "generation_latency_target_ms": 1500.0,
+    "generation_within_target": true
+  }
+}

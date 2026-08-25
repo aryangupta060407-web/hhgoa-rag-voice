@@ -93,7 +93,10 @@ def _process_one(ex: EvalExample, index, records: list[ChunkRecord], top_k: int)
     result = ExampleResult(example=ex)
     try:
         hits_en, embed_ms_en, search_ms_en, chunk_records_en = _search(ex.query_en, index, records, top_k, embed_one)
-        hits_target, embed_ms_target, search_ms_target, chunk_records_target = _search(ex.query_target, index, records, top_k, embed_one)
+        if ex.target_language == "en":
+            hits_target, embed_ms_target, search_ms_target, chunk_records_target = hits_en, 0.0, 0.0, chunk_records_en
+        else:
+            hits_target, embed_ms_target, search_ms_target, chunk_records_target = _search(ex.query_target, index, records, top_k, embed_one)
         result.retrieved_en = hits_en
         result.retrieved_target = hits_target
         result.embed_ms_en, result.search_ms_en = embed_ms_en, search_ms_en

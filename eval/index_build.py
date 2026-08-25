@@ -80,7 +80,10 @@ def build_index(examples: list[EvalExample]):
 
     for ex in examples:
         selected_idx = ex.gt_passage_index  # None for unanswerable examples
-        for lang, candidates in (("en", ex.candidates_en), (ex.target_language, ex.candidates_target)):
+        language_candidates = (("en", ex.candidates_en),)
+        if ex.target_language != "en":
+            language_candidates += ((ex.target_language, ex.candidates_target),)
+        for lang, candidates in language_candidates:
             for i, passage in enumerate(candidates):
                 if not passage:
                     continue
